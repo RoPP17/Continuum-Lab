@@ -1,0 +1,32 @@
+# Continuum Lab — Core Engineering & Visual Dependencies
+# Machine: ASUS TUF A16 (AMD Ryzen 9 270, NVIDIA RTX 5070 Laptop GPU 8GB)
+# Python: 3.12+ 64-bit Windows
+
+# Core Scientific & Mathematical Stack
+numpy>=2.1.0
+scipy>=1.14.0
+sympy>=1.13.0
+openpyxl>=3.1.5
+
+# GPU & Hardware-Accelerated Simulation
+taichi>=1.7.4
+
+# Rendering, Shaders & Visual Engineering
+moderngl>=5.12.0
+moderngl-window>=3.1.1
+PyOpenGL>=3.1.10
+pygame>=2.6.1
+matplotlib>=3.10.0
+Pillow>=11.0.0
+opencv-python>=4.10.0
+
+# Mathematical Animation & Presentation
+manim>=0.21.0
+
+# Telemetry HUD & Interactive Interfaces
+PyQt6>=6.11.0
+pyqtgraph>=0.14.0
+
+# Automated Verification & Quality Assurance
+pytest>=8.3.0
+rich>=13.9.0

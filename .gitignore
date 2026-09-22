@@ -1,0 +1,19 @@
+# Python bytecode & cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Environments
+venv/
+.venv/
+env/
+
+# Large render video files (keep screenshots, benchmarks, and preview gif)
+assets/renders/*.mp4
+
+# IDE & OS
+.vscode/
+.idea/
+Thumbs.db
+Desktop.ini
