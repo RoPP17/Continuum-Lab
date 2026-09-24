@@ -1,7 +1,7 @@
 """
 Continuum Lab — Visual Art Direction & Aesthetic Color Theory
 Cybernetic Laboratory / Dark Engineering Palette
-Author: Roberto Andrés Pepe Sánchez (@RoPP17) & Continuum Lab Agent
+Division: Scientific Visualization & Graphical Shaders
 
 Palette Specification:
   - Deep Space Void:     #0a0a0c (Lattice background & domain boundaries)

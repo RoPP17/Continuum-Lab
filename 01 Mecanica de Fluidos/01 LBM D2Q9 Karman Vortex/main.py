@@ -1,22 +1,32 @@
 """
 Continuum Lab — Senior Computational Physics & Visual Engineering Architecture
-Entry Point: Lattice Boltzmann D2Q9 Vortex Shedding Engine
-Author: Roberto Andrés Pepe Sánchez (@RoPP17) & Continuum Lab Agent
+Case Study: Lattice Boltzmann D2Q9 Vortex Shedding Engine
+Division: 01_Mecanica_de_Fluidos / 01_LBM_D2Q9_Karman_Vortex
 
 Execution Modes:
   python main.py                     # Real-time 60 FPS CUDA interactive window
   python main.py --mode render       # 16:9 Widescreen Presentation Render (MP4)
-  python main.py --mode render --format 9:16  # 9:16 Vertical Video for YouTube Shorts
+  python main.py --mode render --format 9:16  # 9:16 Vertical Video for Shorts/Reels
   python main.py --benchmark         # Runs physics benchmark and exports dynamic Excel model
 """
 
 import argparse
 import sys
 import os
+from pathlib import Path
+
+# Add project root and module path for robust resolution
+current_dir = Path(__file__).resolve().parent
+if str(current_dir) not in sys.path:
+    sys.path.insert(0, str(current_dir))
 
 from src.physics.lbm_d2q9 import LBMConfig
 from src.simulation.engine import SimulationEngine
 from src.physics.export_benchmarks import export_lbm_benchmark_excel
+
+# Base media & benchmark output directory (completely segregated into RENDERS/1)
+WORKSPACE_ROOT = current_dir.parent.parent
+OUTPUT_DIR = WORKSPACE_ROOT / "RENDERS" / "1"
 
 
 def parse_args():
@@ -70,15 +80,15 @@ def main():
     args = parse_args()
     print("===============================================================================")
     print("                 CONTINUUM LAB // COMPUTATIONAL PHYSICS & VISUALS")
-    print("                      Director: Roberto Andrés Pepe Sánchez")
+    print("                 Module: 01_Mecanica_de_Fluidos / LBM D2Q9 Karman")
     print("===============================================================================")
 
     config = LBMConfig(
-        nx=480,
-        ny=192,
+        nx=512,
+        ny=288,
         reynolds=args.reynolds,
         u_inf=0.08,
-        obstacle_radius=16.0
+        obstacle_radius=18.0
     )
 
     use_gpu = not args.cpu
@@ -98,7 +108,10 @@ def main():
             if (step_idx + 1) % 100 == 0:
                 print(f"  Step {step_idx + 1}/500: Cd={telem['cd']:.3f}, Cl={telem['cl']:+.3f}")
 
-        xlsx_path = os.path.join("assets", "benchmarks", "LBM_Karman_Shedding_Benchmark.xlsx")
+        bench_dir = OUTPUT_DIR / "benchmarks"
+        bench_dir.mkdir(parents=True, exist_ok=True)
+        xlsx_path = str(bench_dir / "LBM_Karman_Shedding_Benchmark.xlsx")
+
         out = export_lbm_benchmark_excel(
             file_path=xlsx_path,
             time_series=time_series,
@@ -111,10 +124,10 @@ def main():
         return
 
     if args.mode == "render":
-        output_file = os.path.join(
-            "assets",
-            "renders",
-            f"lbm_karman_re{int(args.reynolds)}_{args.format.replace(':', 'x')}.mp4"
+        video_dir = OUTPUT_DIR / "videos"
+        video_dir.mkdir(parents=True, exist_ok=True)
+        output_file = str(
+            video_dir / f"lbm_karman_re{int(args.reynolds)}_{args.format.replace(':', 'x')}.mp4"
         )
         engine.export_video(
             output_path=output_file,

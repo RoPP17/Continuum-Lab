@@ -1,8 +1,7 @@
 # CONTINUUM LAB — INFORME TÉCNICO Y DERIVACIÓN FÍSICA
 ## Dinámica de Fluidos Computacional: Método de Lattice Boltzmann (LBM D2Q9-BGK)
-**Autor:** Roberto Andrés Pepe Sánchez (@RoPP17)  
-**Institución:** Universidad Técnica de Ambato (UTA) — Facultad de Ingeniería Civil y Mecánica  
 **División:** Continuum Lab / Simulación y Modelado Computacional  
+**Especialidad:** Dinámica de Fluidos Mesoscópica & Cómputo GPU  
 
 ---
 

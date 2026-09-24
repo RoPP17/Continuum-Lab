@@ -2,7 +2,7 @@
 TITLE Continuum Lab — Simulation Engine
 echo ===============================================================================
 echo                CONTINUUM LAB ^| 60 FPS CUDA Simulation Engine
-echo                     Director: Roberto Andres Pepe Sanchez
+echo                Module: 01_Mecanica_de_Fluidos / LBM D2Q9
 echo ===============================================================================
 echo.
 

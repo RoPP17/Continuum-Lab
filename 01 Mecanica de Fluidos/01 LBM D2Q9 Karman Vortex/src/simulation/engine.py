@@ -2,7 +2,7 @@
 Continuum Lab — Simulation Engine
 Manages 60 FPS temporal execution, backend selection, benchmark recording,
 and multi-format video rendering (9:16 Vertical for Shorts & 16:9 Widescreen).
-Author: Roberto Andrés Pepe Sánchez (@RoPP17) & Continuum Lab Agent
+Division: Computational Fluid Dynamics & GPU Computing
 """
 
 import time

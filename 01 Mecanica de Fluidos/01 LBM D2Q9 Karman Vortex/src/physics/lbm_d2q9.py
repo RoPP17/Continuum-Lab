@@ -1,7 +1,7 @@
 """
 Continuum Lab — Physics Engine
 Lattice Boltzmann Method (LBM) — 2D 9-Velocity Model (D2Q9-BGK)
-Author: Roberto Andrés Pepe Sánchez (@RoPP17) & Continuum Lab Agent
+Division: Fluid Dynamics & Non-Equilibrium Kinetics
 
 Governing Physics:
   - Incompressible Navier-Stokes approximation via Bhatnagar-Gross-Krook (BGK) relaxation.

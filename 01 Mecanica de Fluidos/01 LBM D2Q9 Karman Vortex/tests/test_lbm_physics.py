@@ -1,7 +1,7 @@
 """
 Continuum Lab — Verification & Quality Assurance Suite
 Automated physics tests for D2Q9 Lattice Boltzmann Navier-Stokes Solver.
-Author: Roberto Andrés Pepe Sánchez (@RoPP17) & Continuum Lab Agent
+Division: Computational Fluid Dynamics Quality Assurance
 """
 
 import os

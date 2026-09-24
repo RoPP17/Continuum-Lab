@@ -1,7 +1,7 @@
 """
 Continuum Lab — Visual Rendering & Telemetry HUD Pipeline
 Cybernetic Laboratory Presentation Architecture
-Author: Roberto Andrés Pepe Sánchez (@RoPP17) & Continuum Lab Agent
+Division: Scientific Visualization & Graphical Shaders
 """
 
 import cv2
@@ -20,8 +20,8 @@ from src.visualization.colormaps import (
 
 class VisualRenderer:
     """
-    High-Definition Visual Rendering Engine with HUD Telemetry Overlays.
-    Supports real-time display and headless video/image exports.
+    High-Definition Visual Rendering Engine with Non-Overlapping HUD Telemetry Overlays.
+    Enforces strict bounding box margins and collision-free typography.
     """
 
     def __init__(self, width: int = 1280, height: int = 720):
@@ -44,8 +44,8 @@ class VisualRenderer:
         """
         Renders a composite engineering frame:
           - Field: Cybernetic Vorticity with tanh hyperbolic compression.
-          - Solid: Dark metallic cylinder with luminous cyan/magenta rim glow.
-          - HUD: Real-time scientific telemetry cards.
+          - Solid: Dark metallic body with luminous cyan rim glow.
+          - HUD: Strictly bounded telemetry cards (zero overlap).
         """
         # 1. Base Vorticity Field to RGB
         rgb_raw = map_vorticity_to_rgb(vorticity, omega_0=omega_0)
@@ -61,7 +61,7 @@ class VisualRenderer:
         ).astype(bool)
 
         # Draw dark metallic body inside solid
-        frame[mask_resized] = [18, 22, 28]  # Deep charcoal
+        frame[mask_resized] = [16, 20, 24]  # Deep slate charcoal
 
         # Draw obstacle glowing rim
         contours, _ = cv2.findContours(
@@ -77,45 +77,62 @@ class VisualRenderer:
         return frame
 
     def _overlay_hud(self, frame: np.ndarray, telem: dict) -> None:
-        """Draws non-intrusive cybernetic HUD cards with telemetry."""
-        # Top Header Banner
-        cv2.rectangle(frame, (20, 20), (450, 240), (13, 17, 23), -1)  # Card background
-        cv2.rectangle(frame, (20, 20), (450, 240), (0, 240, 255), 1)  # Card border
+        """
+        Draws non-overlapping cybernetic HUD cards with strict bounding box isolation.
+        No text collides with other text, borders, or active visual dynamics.
+        """
+        card_x0, card_y0 = 20, 20
+        card_w, card_h = 520, 225
+        card_x1, card_y1 = card_x0 + card_w, card_y0 + card_h
 
-        # Title
-        font = cv2.FONT_HERSHEY_SIMPLEX
+        # Solid background card with subtle cybernetic cyan border
+        cv2.rectangle(frame, (card_x0, card_y0), (card_x1, card_y1), (13, 17, 23), -1)
+        cv2.rectangle(frame, (card_x0, card_y0), (card_x1, card_y1), (0, 240, 255), 1)
+
+        # Typography configuration
+        font_head = cv2.FONT_HERSHEY_SIMPLEX
         font_mono = cv2.FONT_HERSHEY_PLAIN
 
-        cv2.putText(frame, "CONTINUUM LAB // LBM-D2Q9", (35, 48), font, 0.65, (255, 255, 255), 2, cv2.LINE_AA)
-        cv2.putText(frame, "DIRECTOR: R. A. PEPE SANCHEZ", (35, 70), font_mono, 0.9, (120, 140, 160), 1, cv2.LINE_AA)
+        # Header Title
+        cv2.putText(frame, "CONTINUUM LAB // LBM-D2Q9", (card_x0 + 18, card_y0 + 28), font_head, 0.55, (255, 255, 255), 1, cv2.LINE_AA)
+        cv2.putText(frame, "VORTEX DYNAMICS & TELEMETRY", (card_x0 + 18, card_y0 + 46), font_mono, 0.90, (140, 160, 180), 1, cv2.LINE_AA)
 
-        # Line separator
-        cv2.line(frame, (35, 82), (435, 82), (40, 50, 65), 1)
+        # Horizontal accent rule
+        cv2.line(frame, (card_x0 + 18, card_y0 + 56), (card_x1 - 18, card_y0 + 56), (40, 50, 65), 1)
 
-        # Telemetry metrics
+        # Extract Telemetry
         re_val = telem.get("reynolds", 0.0)
         ma_val = telem.get("mach", 0.0)
         cd_val = telem.get("cd", 0.0)
         cl_val = telem.get("cl", 0.0)
         fps_val = telem.get("fps", 0.0)
         step_val = telem.get("step", 0)
-        backend = telem.get("backend", "GPU CUDA")
+        backend = telem.get("backend", "CUDA RTX 5070")
 
-        cv2.putText(frame, f"REYNOLDS (Re):   {re_val:.1f}", (35, 110), font_mono, 1.1, (0, 240, 255), 1, cv2.LINE_AA)
-        cv2.putText(frame, f"MACH NUMBER (Ma):{ma_val:.3f} (Incomp)", (35, 130), font_mono, 1.1, (0, 255, 150), 1, cv2.LINE_AA)
-        cv2.putText(frame, f"DRAG COEFF (Cd): {cd_val:.3f}", (35, 155), font_mono, 1.1, (0, 170, 255), 1, cv2.LINE_AA)
-        cv2.putText(frame, f"LIFT COEFF (Cl): {cl_val:+.3f}", (35, 175), font_mono, 1.1, (255, 0, 127), 1, cv2.LINE_AA)
-        cv2.putText(frame, f"TIME STEP:       {step_val:06d}", (35, 200), font_mono, 1.0, (180, 180, 180), 1, cv2.LINE_AA)
-        cv2.putText(frame, f"SOLVER:          {backend} [{fps_val:.1f} FPS]", (35, 222), font_mono, 1.0, (57, 255, 20), 1, cv2.LINE_AA)
+        # Telemetry Metrics (Exact non-overlapping vertical spacing: 23px delta)
+        text_x = card_x0 + 18
+        y_cursor = card_y0 + 78
 
-        # Record history for phase plot
+        cv2.putText(frame, f"REYNOLDS (Re):     {re_val:.1f}", (text_x, y_cursor), font_mono, 1.05, (0, 240, 255), 1, cv2.LINE_AA)
+        y_cursor += 23
+        cv2.putText(frame, f"MACH NUMBER (Ma):  {ma_val:.3f} (Incompressible)", (text_x, y_cursor), font_mono, 1.05, (0, 255, 150), 1, cv2.LINE_AA)
+        y_cursor += 23
+        cv2.putText(frame, f"DRAG COEFF (Cd):   {cd_val:.3f}", (text_x, y_cursor), font_mono, 1.05, (0, 170, 255), 1, cv2.LINE_AA)
+        y_cursor += 23
+        cv2.putText(frame, f"LIFT COEFF (Cl):   {cl_val:+.3f}", (text_x, y_cursor), font_mono, 1.05, (255, 0, 127), 1, cv2.LINE_AA)
+        y_cursor += 23
+        cv2.putText(frame, f"TIME STEP:         {step_val:06d}", (text_x, y_cursor), font_mono, 1.00, (180, 180, 180), 1, cv2.LINE_AA)
+        y_cursor += 23
+        cv2.putText(frame, f"SOLVER:            {backend}  |  {fps_val:.0f} FPS", (text_x, y_cursor), font_mono, 1.00, (57, 255, 20), 1, cv2.LINE_AA)
+
+        # Record history for limit cycle phase portrait
         self.cd_history.append(cd_val)
         self.cl_history.append(cl_val)
         if len(self.cd_history) > self.max_history:
             self.cd_history.pop(0)
             self.cl_history.pop(0)
 
-        # Mini Phase Plot Card (Bottom-Right: Cd vs Cl Limit Cycle)
+        # Isolated Phase Plot Card (Bottom-Right: Cd vs Cl Limit Cycle)
         self._overlay_phase_card(frame)
 
     def _overlay_phase_card(self, frame: np.ndarray) -> None:
@@ -126,7 +143,7 @@ class VisualRenderer:
 
         cv2.putText(
             frame, "PHASE PORTRAIT (Cd vs Cl)",
-            (x0 + 12, y0 + 20),
+            (x0 + 14, y0 + 22),
             cv2.FONT_HERSHEY_PLAIN, 0.85, (255, 255, 255), 1, cv2.LINE_AA
         )
 
@@ -146,12 +163,11 @@ class VisualRenderer:
         plot_pts = []
         for c_d, c_l in zip(cds, cls):
             px = int(x0 + 20 + (c_d - cd_min) / (cd_max - cd_min) * (w - 40))
-            py = int(y0 + h - 20 - (c_l - cl_min) / (cl_max - cl_min) * (h - 45))
+            py = int(y0 + h - 20 - (c_l - cl_min) / (cl_max - cl_min) * (h - 48))
             plot_pts.append((px, py))
 
         for k in range(len(plot_pts) - 1):
             alpha = float(k) / len(plot_pts)
-            # Gradient color from violet to cyan
             b = int(255 * alpha)
             g = int(200 * alpha)
             r = int(255 * (1.0 - alpha))

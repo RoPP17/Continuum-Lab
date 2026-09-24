@@ -1,7 +1,7 @@
 """
 Continuum Lab — Hydrodynamic Benchmark & Engineering Excel Model
 Generates dynamic Excel model (.xlsx) using openpyxl with zero hardcoded formulas.
-Author: Roberto Andrés Pepe Sánchez (@RoPP17) & Continuum Lab Agent
+Division: Computational Fluid Dynamics & Quantitative Benchmarks
 """
 
 import os
@@ -86,7 +86,7 @@ def export_lbm_benchmark_excel(
     # Title Banner
     ws_analysis["A1"] = "CONTINUUM LAB // HYDRODYNAMIC FORCE ANALYSIS"
     ws_analysis["A1"].font = title_font
-    ws_analysis["A2"] = "Lattice Boltzmann D2Q9 Vortex Shedding Benchmark (Director: Roberto Andrés Pepe Sánchez)"
+    ws_analysis["A2"] = "Lattice Boltzmann D2Q9 Vortex Shedding Benchmark (Continuum Lab Architecture)"
     ws_analysis["A2"].font = sub_font
 
     # Section 1: Flow Parameters

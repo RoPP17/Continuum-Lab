@@ -1,7 +1,7 @@
 """
 Continuum Lab — Senior Computational Physics & Visual Engineering Architecture.
-Collaborator: Roberto Andrés Pepe Sánchez (@RoPP17)
+Fluid Dynamics Division: Lattice Boltzmann D2Q9 Vortex Engine.
 """
 
 __version__ = "1.0.0"
-__author__ = "Roberto Andrés Pepe Sánchez"
+__author__ = "Continuum Lab"
