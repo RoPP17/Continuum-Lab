@@ -24,9 +24,9 @@ from src.physics.lbm_d2q9 import LBMConfig
 from src.simulation.engine import SimulationEngine
 from src.physics.export_benchmarks import export_lbm_benchmark_excel
 
-# Base media & benchmark output directory (completely segregated into RENDERS/1)
+# Base media & benchmark output directory (completely segregated into RENDERS/1 Vortices de von Karman)
 WORKSPACE_ROOT = current_dir.parent.parent
-OUTPUT_DIR = WORKSPACE_ROOT / "RENDERS" / "1"
+OUTPUT_DIR = WORKSPACE_ROOT / "RENDERS" / "1 Vortices de von Karman"
 
 
 def parse_args():
