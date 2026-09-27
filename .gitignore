@@ -18,13 +18,15 @@ ENV/
 *.wav
 *.mp3
 
-# CRITICAL SECURITY: Ignore all social & API credentials, tokens, and cookies
-Automatizacion y Redes/client_secret*.json
-Automatizacion y Redes/token*.json
-Automatizacion y Redes/ig_session*.json
-Automatizacion y Redes/tiktok_cookies*.txt
-Automatizacion y Redes/meta-ads-kit/
-Automatizacion y Redes/openadserver/
+# CRITICAL PRIVACY & INFRASTRUCTURE EXCLUSIONS (Local Only - Never in GitHub)
+Skills e Instrucciones/
+Identidad Visual/
+Automatizacion y Redes/
+Analiticas y Seguimiento/
+Seguimiento y Metricas/
+skills-lock.json
+logo.png
+logo.svg
 *.secret
 *credentials*.json
 *.cookies.txt

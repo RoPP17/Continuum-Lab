@@ -2,7 +2,7 @@
 
 <div align="center">
 
-<img src="Identidad Visual/logo_master_lockup.png" width="480" alt="Continuum Lab Logo"/>
+<img src="RENDERS/1%20Vortices%20de%20von%20Karman/extra/capturas/karman_vortex_hud_hero.png" width="680" alt="Continuum Lab Computational Physics"/>
 
 <br/>
 
@@ -40,10 +40,8 @@ Continuum Lab/
 ├── 06 Matematicas y Geometria/              # Pure & applied mathematics, geometry, complex analysis
 │   ├── 01 Series de Fourier Geometricas/    # Complex epicycle decomposition (Circle, Star, Octagon)
 │   └── 02 Identidad de Euler 3D/            # Helix on complex cylinder, Taylor convergence & projections
-├── Automatizacion y Redes/                  # Autonomous headless publishing suite (IG, TikTok, YouTube)
-├── Identidad Visual/                        # Vector branding, master lockups, banners & HUD specs
-├── RENDERS/                                 # Centralized video captures, benchmarks & media
-│   ├── 1 Vortices de von Karman/extra/      # Benchmarks (.xlsx), screenshots, telemetry
+├── RENDERS/                                 # Numerical benchmarks & high-resolution captures
+│   ├── 1 Vortices de von Karman/extra/      # Dynamic Excel models (.xlsx), telemetry & screenshots
 │   ├── 2 Pendulo Triple Trayectoria Caotica/extra/
 │   ├── 3 Series de Fourier Geometricas/extra/
 │   └── 4 Identidad de Euler 3D/extra/
