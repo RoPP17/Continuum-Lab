@@ -2,7 +2,7 @@
 
 **División:** 06 Matemáticas y Geometría  
 **Módulo:** 02 Identidad de Euler en el Espacio 3D  
-**Autor:** Roberto Andrés Pepe Sánchez — Continuum Lab  
+**Autor:** Continuum Lab (Investigación Computacional & Simulación Visual)  
 
 ---
 
