@@ -5,8 +5,15 @@ Division: Computational Fluid Dynamics Quality Assurance
 """
 
 import os
+import sys
+from pathlib import Path
 import pytest
 import numpy as np
+
+# Ensure project root is in sys.path
+proj_dir = Path(__file__).resolve().parent.parent
+if str(proj_dir) not in sys.path:
+    sys.path.insert(0, str(proj_dir))
 
 from src.physics.lbm_d2q9 import (
     LATTICE_C,

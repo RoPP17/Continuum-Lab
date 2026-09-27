@@ -4,15 +4,31 @@ __pycache__/
 *$py.class
 .pytest_cache/
 
-# Environments
+# Virtual Environments
 venv/
 .venv/
 env/
+ENV/
 
-# Large render video files (keep screenshots, benchmarks, and preview gif)
-assets/renders/*.mp4
+# Large render video binaries (keep screenshots, benchmarks, and captures)
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.wav
+*.mp3
 
-# IDE & OS
+# CRITICAL SECURITY: Ignore all social & API credentials, tokens, and cookies
+Automatizacion y Redes/client_secret*.json
+Automatizacion y Redes/token*.json
+Automatizacion y Redes/ig_session*.json
+Automatizacion y Redes/tiktok_cookies*.txt
+*.secret
+*credentials*.json
+*.cookies.txt
+
+# Local IDE, Agent & OS artifacts
+.agents/
 .vscode/
 .idea/
 Thumbs.db

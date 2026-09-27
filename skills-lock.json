@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "threejs-skills": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/threejs-skills/SKILL.md",
+      "computedHash": "c04e1ab1911877730ae5d60ddc5e77af85f7ebc1d443d1904d664e966ede4f80"
+    }
+  }
+}

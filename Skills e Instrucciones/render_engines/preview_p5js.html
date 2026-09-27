@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Continuum Lab | P5.js Generative Vector Field</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #08090b;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: monospace;
+    }
+    #info-box {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      color: #38bdf8;
+      font-size: 13px;
+      background: rgba(15, 23, 42, 0.8);
+      padding: 10px 16px;
+      border-radius: 6px;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="info-box">CONTINUUM LAB // P5.JS TURBULENT ADVECTION (60 FPS)</div>
+
+  <script>
+    const NUM_PARTICLES = 1200;
+    let particles = [];
+    let noiseScale = 0.005;
+
+    class Particle {
+      constructor() {
+        this.reset();
+      }
+
+      reset() {
+        this.pos = createVector(random(width), random(height));
+        this.vel = createVector(0, 0);
+        this.acc = createVector(0, 0);
+        this.maxSpeed = random(2, 4.5);
+        this.life = random(100, 300);
+        this.currentLife = this.life;
+        this.prevPos = this.pos.copy();
+      }
+
+      update() {
+        this.prevPos = this.pos.copy();
+        let angle = noise(this.pos.x * noiseScale, this.pos.y * noiseScale, frameCount * 0.003) * TWO_PI * 4;
+        let force = p5.Vector.fromAngle(angle).mult(0.6);
+        this.acc.add(force);
+        this.vel.add(this.acc);
+        this.vel.limit(this.maxSpeed);
+        this.pos.add(this.vel);
+        this.acc.mult(0);
+        this.currentLife--;
+
+        if (this.currentLife <= 0 || this.pos.x < 0 || this.pos.x > width || this.pos.y < 0 || this.pos.y > height) {
+          this.reset();
+        }
+      }
+
+      display() {
+        let alpha = map(this.currentLife, 0, this.life, 0, 180);
+        let speedRatio = this.vel.mag() / this.maxSpeed;
+        let r = lerp(0, 255, speedRatio);
+        let g = lerp(200, 50, speedRatio);
+        let b = lerp(255, 180, speedRatio);
+        stroke(r, g, b, alpha);
+        strokeWeight(1.2);
+        line(this.prevPos.x, this.prevPos.y, this.pos.x, this.pos.y);
+      }
+    }
+
+    function setup() {
+      createCanvas(windowWidth, windowHeight);
+      background(8, 9, 11);
+      for (let i = 0; i < NUM_PARTICLES; i++) {
+        particles.push(new Particle());
+      }
+    }
+
+    function draw() {
+      // Semi-transparent overlay to produce advection motion trails
+      background(8, 9, 11, 18);
+      for (let p of particles) {
+        p.update();
+        p.display();
+      }
+    }
+
+    function windowResized() {
+      resizeCanvas(windowWidth, windowHeight);
+      background(8, 9, 11);
+    }
+  </script>
+</body>
+</html>

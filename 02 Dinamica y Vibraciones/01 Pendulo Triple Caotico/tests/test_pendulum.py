@@ -4,8 +4,16 @@ Physical tests for the Non-Linear Triple Pendulum Integrator.
 Division: 02 Dinamica y Vibraciones / 01 Pendulo Triple Caotico
 """
 
+import sys
+from pathlib import Path
 import numpy as np
 import pytest
+
+# Ensure project root is in sys.path
+proj_dir = Path(__file__).resolve().parent.parent
+if str(proj_dir) not in sys.path:
+    sys.path.insert(0, str(proj_dir))
+
 from src.physics.triple_pendulum import TriplePendulumSimulator, TriplePendulumParams
 
 
