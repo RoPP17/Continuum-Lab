@@ -23,9 +23,15 @@ Automatizacion y Redes/client_secret*.json
 Automatizacion y Redes/token*.json
 Automatizacion y Redes/ig_session*.json
 Automatizacion y Redes/tiktok_cookies*.txt
+Automatizacion y Redes/meta-ads-kit/
+Automatizacion y Redes/openadserver/
 *.secret
 *credentials*.json
 *.cookies.txt
+*.env
+*.env.*
+.env
+*ad-config.json
 
 # Local IDE, Agent & OS artifacts
 .agents/

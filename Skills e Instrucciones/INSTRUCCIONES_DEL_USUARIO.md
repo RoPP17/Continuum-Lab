@@ -107,3 +107,19 @@
   - Cero archivos de video pesados (`.mp4`, `.mov`) en el árbol de git; se versionan exclusivamente scripts, benchmarks en Excel, capturas de alta definición y documentación.
   - Organización modular y limpia, con tests unitarios pasando y READMEs descriptivos.
 
+---
+
+## 10. Cadencia de Publicación y Matriz de Contenidos (Regla de Operación Estricta)
+* **Manual de Referencia Vinculante:** [`Skills e Instrucciones/ESTRATEGIA_SOCIAL_Y_VIRALIDAD.md`](ESTRATEGIA_SOCIAL_Y_VIRALIDAD.md).
+* **Frecuencia Estricta:**
+  - **Mínimo:** 3 videos por semana (para no perder el grupo de prueba de 500 impresiones del algoritmo).
+  - **Máximo:** 1 video por día (o 2 espaciados por 10 horas) para evitar la **canibalización algorítmica**.
+  - **Cadencia Óptima (Sweet Spot):** **4 a 5 videos por semana** (Martes, Miércoles, Jueves, Sábado, Domingo).
+  - **Horarios Pico (GMT-5):** Ventana A (11:30 AM – 1:30 PM EST, pico transatlántico EE.UU./Europa) y Ventana B (6:30 PM – 8:30 PM EST, Silicon Valley / Costa Oeste).
+* **Distribución de Pilares:**
+  - **Fluidos y Aerodinámica (40%):** Máximo alcance masivo y fascinación visual.
+  - **Sistemas Caóticos (25%):** Máximo debate, comentarios y preguntas filosóficas.
+  - **Geometría y Matemática (20%):** Máximos guardados (Saves) como referencia académica.
+  - **Ondas y Audio-Física (15%):** Máxima retención sensorial y tiempo de reproducción (*watch time*).
+
+
