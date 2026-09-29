@@ -10,6 +10,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent
 
 TEST_SUITES = [
     PROJECT_ROOT / "01 Mecanica de Fluidos" / "01 LBM D2Q9 Karman Vortex" / "tests",
+    PROJECT_ROOT / "01 Mecanica de Fluidos" / "02 Singularidad Navier Stokes Blowup" / "tests",
     PROJECT_ROOT / "02 Dinamica y Vibraciones" / "01 Pendulo Triple Caotico" / "tests",
     PROJECT_ROOT / "06 Matematicas y Geometria" / "01 Series de Fourier Geometricas" / "tests",
     PROJECT_ROOT / "06 Matematicas y Geometria" / "02 Identidad de Euler 3D" / "tests",
@@ -36,7 +37,7 @@ def main() -> int:
 
     print("\n" + "=" * 60)
     if total_failed == 0:
-        print(" ALL SUITES PASSED (20/20 physical and mathematical tests green)")
+        print(" ALL SUITES PASSED (26/26 physical and mathematical tests green)")
         print("=" * 60)
         return 0
     else:
