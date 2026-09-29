@@ -42,7 +42,7 @@ def generate_pink_noise(num_samples: int) -> np.ndarray:
 
 
 def synthesize_blowup_audio(
-    duration: float = 18.5,
+    duration: float = 21.5,
     fs: int = 44100,
     output_path: str = "navier_stokes_blowup_audio.wav"
 ) -> str:
@@ -94,8 +94,9 @@ def synthesize_blowup_audio(
     pulses_l = np.zeros(num_samples)
     pulses_r = np.zeros(num_samples)
 
-    # Burst intervals throughout the 18s timeline
-    pulse_times = np.linspace(1.5, 17.0, 14)
+    # Burst intervals throughout the timeline
+    num_bursts = int(duration * 0.8)
+    pulse_times = np.linspace(1.5, duration - 1.2, num_bursts)
     for i, pt in enumerate(pulse_times):
         idx = int(pt * fs)
         p_len = int(0.18 * fs)
@@ -114,13 +115,13 @@ def synthesize_blowup_audio(
     # -------------------------------------------------------------------------
     # 5. Cinematic Ambient Pad (Dm9 -> Bbmaj7 -> Gm9 -> Dsus4)
     # -------------------------------------------------------------------------
-    chord_times = [0.0, 4.5, 9.0, 13.5, 18.5]
     chords = [
         [146.83, 220.00, 261.63, 293.66, 329.63],  # Dm9 (D3, A3, C4, D4, E4)
         [116.54, 174.61, 220.00, 261.63, 293.66],  # Bbmaj7 (Bb2, F3, A3, C4, D4)
         [98.00, 146.83, 196.00, 220.00, 293.66],   # Gm9 (G2, D3, G3, A3, D4)
         [146.83, 220.00, 293.66, 392.00]           # Dsus4 (D3, A3, D4, G4)
     ]
+    chord_times = np.linspace(0.0, duration, len(chords) + 1)
 
     pad_l = np.zeros(num_samples)
     pad_r = np.zeros(num_samples)

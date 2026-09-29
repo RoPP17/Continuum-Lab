@@ -84,18 +84,18 @@ def create_blowup_scene(lang: str = "ES"):
 
             if lang == "ES":
                 live_text = always_redraw(lambda: Text(
-                    f"τ = {max(1.0 - t_tracker.get_value()/18.0*0.992, 0.008):.3f}    "
-                    f"||u||_max = {sim.compute_global_metrics(min(t_tracker.get_value()/18.0*0.992, 0.992))['u_max']:.1f} m/s    "
-                    f"E_tot = {sim.compute_global_metrics(min(t_tracker.get_value()/18.0*0.992, 0.992))['energy_total']:.2f} J (Acotada)",
+                    f"τ = {max(1.0 - t_tracker.get_value()/21.0*0.992, 0.008):.3f}    "
+                    f"||u||_max = {sim.compute_global_metrics(min(t_tracker.get_value()/21.0*0.992, 0.992))['u_max']:.1f} m/s    "
+                    f"E_tot = {sim.compute_global_metrics(min(t_tracker.get_value()/21.0*0.992, 0.992))['energy_total']:.2f} J (Acotada)",
                     font="Segoe UI",
                     font_size=14,
                     color="#39ff14"
                 ).move_to(UP * 4.70))
             else:
                 live_text = always_redraw(lambda: Text(
-                    f"τ = {max(1.0 - t_tracker.get_value()/18.0*0.992, 0.008):.3f}    "
-                    f"||u||_max = {sim.compute_global_metrics(min(t_tracker.get_value()/18.0*0.992, 0.992))['u_max']:.1f} m/s    "
-                    f"E_tot = {sim.compute_global_metrics(min(t_tracker.get_value()/18.0*0.992, 0.992))['energy_total']:.2f} J (Bounded)",
+                    f"τ = {max(1.0 - t_tracker.get_value()/21.0*0.992, 0.008):.3f}    "
+                    f"||u||_max = {sim.compute_global_metrics(min(t_tracker.get_value()/21.0*0.992, 0.992))['u_max']:.1f} m/s    "
+                    f"E_tot = {sim.compute_global_metrics(min(t_tracker.get_value()/21.0*0.992, 0.992))['energy_total']:.2f} J (Bounded)",
                     font="Segoe UI",
                     font_size=14,
                     color="#39ff14"
@@ -185,22 +185,22 @@ def create_blowup_scene(lang: str = "ES"):
             pulses_group = always_redraw(lambda: self.get_wave_pulses(t_tracker.get_value(), v_center, sim))
             self.add(pulses_group)
 
-            # Rotating Fluid Tracer Particles (60 particles)
+            # Rotating Fluid Tracer Particles with Dynamic Streamline Streaks (75 particles)
             particles_group = always_redraw(lambda: self.get_tracer_particles(t_tracker.get_value(), v_center, sim))
             self.add(particles_group)
 
             # -----------------------------------------------------------------
-            # 5. Continuous 18.0s Physical Execution
+            # 5. Continuous 21.0s Physical Execution (+3s requested extension)
             # -----------------------------------------------------------------
             self.play(
-                t_tracker.animate.set_value(18.0),
-                run_time=18.0,
+                t_tracker.animate.set_value(21.0),
+                run_time=21.0,
                 rate_func=linear
             )
             self.wait(0.2)
 
         def get_annulus_rings(self, t: float, center: np.ndarray, sim: NavierStokesBlowupSimulation):
-            prog = min(t / 18.0, 0.995)
+            prog = min(t / 21.0, 0.995)
             # Physical contraction: tau shrinks from 1.0 to 0.008
             tau = max(1.0 - prog * 0.992, 0.008)
             q = tau
@@ -225,7 +225,7 @@ def create_blowup_scene(lang: str = "ES"):
             return VGroup(annulus_fill, ring_a, ring_b)
 
         def get_needle_filament(self, t: float, center: np.ndarray, sim: NavierStokesBlowupSimulation):
-            prog = min(t / 18.0, 0.995)
+            prog = min(t / 21.0, 0.995)
             tau = max(1.0 - prog * 0.992, 0.008)
             lr = np.sqrt(tau)
             lz = tau**(0.5 - sim.params.h)
@@ -265,13 +265,13 @@ def create_blowup_scene(lang: str = "ES"):
             return VGroup(halo_core, dot_core, needle_line, arrow_up, arrow_down)
 
         def get_dynamic_streamlines(self, t: float, center: np.ndarray, sim: NavierStokesBlowupSimulation):
-            prog = min(t / 18.0, 0.995)
+            prog = min(t / 21.0, 0.995)
             tau = max(1.0 - prog * 0.992, 0.008)
 
             streamlines = VGroup()
             num_lines = 12
             # Spin angle advances dynamically
-            spin_offset = 2.8 * t + 1.2 * (prog**2.2) * 18.0
+            spin_offset = 2.8 * t + 1.2 * (prog**2.2) * 21.0
 
             for i in range(num_lines):
                 theta_0 = i * (2.0 * np.pi / num_lines) + spin_offset * 0.25
@@ -299,7 +299,7 @@ def create_blowup_scene(lang: str = "ES"):
             Draws the annular wave pulse packets (sigma = +1 and sigma = -1)
             representing the Reynolds stress cancellation <w_r * w_theta> and <w_r * w_z>.
             """
-            prog = min(t / 18.0, 0.995)
+            prog = min(t / 21.0, 0.995)
             tau = max(1.0 - prog * 0.992, 0.008)
             q = tau
 
@@ -333,39 +333,51 @@ def create_blowup_scene(lang: str = "ES"):
             return pulses
 
         def get_tracer_particles(self, t: float, center: np.ndarray, sim: NavierStokesBlowupSimulation):
-            prog = min(t / 18.0, 0.995)
+            """
+            Rotating Fluid Tracer Particles with Dynamic Velocity Comet Streaks.
+            Slightly enlarged and accented with trailing velocity vectors to make
+            the swirling fluid kinematics and inward spiral advection clearly evident.
+            """
+            prog = min(t / 21.0, 0.995)
             tau = max(1.0 - prog * 0.992, 0.008)
 
             particles = VGroup()
-            # Deterministic pseudo-random seed per index
-            num_p = 60
+            num_p = 75
             for idx in range(num_p):
-                # Fixed radial anchor
-                r_base = 0.25 + 2.85 * ((idx * 37) % 100) / 100.0
+                # Fixed deterministic radial anchor
+                r_seed = ((idx * 37) % 100) / 100.0
                 theta_base = ((idx * 83) % 100) / 100.0 * 2.0 * np.pi
+                r_base = 0.22 + 2.85 * r_seed
 
-                # Angular velocity omega(r, t) ~ r^(-1.2) * tau^(-0.45)
-                omega_p = (1.4 / (r_base**1.1)) * (tau**(-0.35))
-                # Particle moves inward slowly: r(t)
-                dr_inflow = 0.15 * (prog**1.5) * (1.0 / (r_base + 0.2))
-                r_curr = max(r_base - dr_inflow, 0.08)
+                # Continuous inward spiral drift with respawn
+                drift = 0.38 * (t / 21.0) + 0.18 * (prog**2.0)
+                r_curr = ((r_base - 0.22 - drift) % 2.85) + 0.22
+
+                # Dynamic swirling angular velocity omega_p(r, tau)
+                omega_p = (2.2 / (r_curr**0.95)) * (tau**(-0.38))
                 theta_curr = theta_base + omega_p * t
 
                 pos = center + np.array([r_curr * np.cos(theta_curr), r_curr * np.sin(theta_curr), 0.0])
 
-                # Color: Cyan if near core, Magenta if in annulus, Sky Blue outside
+                # Tangent velocity streak / comet trail (reveals fluid velocity & direction clearly)
+                dt_trail = 0.075
+                theta_tail = theta_curr - omega_p * dt_trail
+                r_tail = min(r_curr + 0.035 * dt_trail, 3.1)
+                pos_tail = center + np.array([r_tail * np.cos(theta_tail), r_tail * np.sin(theta_tail), 0.0])
+
+                # Layered fluid colors: Cyan in core, Neon Magenta/Green in annulus, Sky Blue in outer flow
                 if r_curr < 0.8:
                     p_col = "#00f0ff"
-                    p_size = 0.045
                 elif r_curr < 1.9:
-                    p_col = "#ff007f"
-                    p_size = 0.040
+                    p_col = "#ff007f" if idx % 2 == 0 else "#39ff14"
                 else:
                     p_col = "#38bdf8"
-                    p_size = 0.035
 
-                dot = Dot(point=pos, radius=p_size, color=p_col, fill_opacity=0.85)
-                particles.add(dot)
+                # Velocity trail line + glowing particle head
+                tail_line = Line(pos_tail, pos, color=p_col, stroke_width=2.6, stroke_opacity=0.75)
+                dot_glow = Dot(point=pos, radius=0.060, color=p_col, fill_opacity=0.90)
+                dot_core = Dot(point=pos, radius=0.030, color="#ffffff", fill_opacity=1.0)
+                particles.add(tail_line, dot_glow, dot_core)
 
             return particles
 
@@ -388,12 +400,12 @@ def render_all():
     videos_dir = renders_dir / "videos"
     videos_dir.mkdir(parents=True, exist_ok=True)
 
-    # 1. Synthesize Procedural Hydro-Acoustic Audio
+    # 1. Synthesize Procedural Hydro-Acoustic Audio (21.5s)
     temp_audio_path = str(videos_dir / "navier_stokes_blowup_audio.wav")
     print("\n=======================================================")
-    print("[CONTINUUM LAB] Synthesizing Hydro-Acoustic Blowup Audio...")
+    print("[CONTINUUM LAB] Synthesizing Hydro-Acoustic Blowup Audio (21.5s)...")
     print("=======================================================")
-    synthesize_blowup_audio(duration=18.5, fs=44100, output_path=temp_audio_path)
+    synthesize_blowup_audio(duration=21.5, fs=44100, output_path=temp_audio_path)
 
     ffmpeg_bin = imageio_ffmpeg.get_ffmpeg_exe()
     this_script = str(Path(__file__).resolve())
