@@ -17,6 +17,8 @@ ENV/
 *.mkv
 *.wav
 *.mp3
+*.pdf
+pdf_*.txt
 
 # CRITICAL PRIVACY & INFRASTRUCTURE EXCLUSIONS (Local Only - Never in GitHub)
 Skills e Instrucciones/
