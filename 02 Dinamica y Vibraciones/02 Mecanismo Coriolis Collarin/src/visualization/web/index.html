@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulador Cinemático — Aceleración de Coriolis en Mecanismo de Collarín | Continuum Lab</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="app-container">
+    
+    <!-- Viewport & Canvas de Simulación -->
+    <div id="viewport-wrapper">
+      
+      <!-- Encabezado HUD superior -->
+      <div id="header-hud">
+        <div class="brand-badge">
+          <div class="dot"></div>
+          <span>Continuum Lab • Dinámica Analítica</span>
+        </div>
+        <h1 class="title">Mecanismo con Aceleración de Coriolis</h1>
+        <p class="subtitle">Sistema de 2 barras con collarín deslizante • Guía Ranurada Cinemática</p>
+        <div id="camera-status-badge" class="brand-badge" style="margin-top: 8px; border-color: rgba(255, 215, 0, 0.4); color: #ffd700; background: rgba(22, 18, 10, 0.85); display: inline-flex;">
+          <div class="dot" style="background: #ffd700; box-shadow: 0 0 8px #ffd700;"></div>
+          <span id="camera-status-text">VISTA GLOBAL 1.0x</span>
+        </div>
+      </div>
+
+      <canvas id="sim-canvas"></canvas>
+
+      <!-- Panel de Telemetría Flotante Inferior -->
+      <div id="telemetry-box">
+        <div class="hud-title">
+          <span>Telemetría Vectorial Instantánea</span>
+          <span id="telem-regime" style="color: var(--cyan-neon);">Oscilante</span>
+        </div>
+        
+        <div class="telemetry-grid">
+          <div class="telemetry-item coriolis-highlight">
+            <div class="label">Aceleración Coriolis (2ω₂ × v_rel)</div>
+            <div class="val" id="telem-cor">+0.000 m/s²</div>
+          </div>
+          <div class="telemetry-item">
+            <div class="label">Velocidad Relativa (dr₂/dt)</div>
+            <div class="val" id="telem-vrel">0.000 m/s</div>
+          </div>
+          <div class="telemetry-item">
+            <div class="label">Velocidad Angular Barra 2 (ω₂)</div>
+            <div class="val" id="telem-w2">0.000 rad/s</div>
+          </div>
+          <div class="telemetry-item">
+            <div class="label">Aceleración Angular (α₂)</div>
+            <div class="val" id="telem-alpha2">0.000 rad/s²</div>
+          </div>
+          <div class="telemetry-item">
+            <div class="label">Distancia Radial (r₂)</div>
+            <div class="val" id="telem-r2">0.000 m</div>
+          </div>
+          <div class="telemetry-item">
+            <div class="label">Aceleración Relativa (a_rel)</div>
+            <div class="val" id="telem-arel">0.000 m/s²</div>
+          </div>
+        </div>
+
+        <!-- Osciloscopio en tiempo real de la onda cíclica de Coriolis -->
+        <div id="scope-wrapper">
+          <div style="font-size: 9px; font-family: var(--font-mono); color: var(--text-muted); margin-bottom: 4px; display: flex; justify-content: space-between;">
+            <span>Osciloscopio a_cor(t)</span>
+            <span style="color: var(--cyan-neon);">±8 m/s²</span>
+          </div>
+          <canvas id="scope-canvas"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Barra Lateral de Controles e Ingeniería -->
+    <div id="control-sidebar">
+      <div class="sidebar-content">
+        
+        <!-- Estado de Ejecución -->
+        <div class="panel-section">
+          <div class="section-header">Control de Tiempo</div>
+          <div class="btn-group">
+            <button class="cyber-btn active" id="btn-play">⏸ Pausa</button>
+            <button class="cyber-btn" id="btn-step">⏭ Paso</button>
+            <button class="cyber-btn" id="btn-clear">🧹 Limpiar</button>
+          </div>
+          <div class="btn-group" style="margin-top: 4px;">
+            <button class="cyber-btn speed-btn" data-speed="0.2">0.2x</button>
+            <button class="cyber-btn speed-btn" data-speed="0.5">0.5x</button>
+            <button class="cyber-btn speed-btn active" data-speed="1.0">1.0x</button>
+            <button class="cyber-btn speed-btn" data-speed="2.0">2.0x</button>
+          </div>
+          <button class="cyber-btn active" id="btn-cinematic" style="margin-top: 6px; border-color: rgba(255, 215, 0, 0.4); color: #ffd700;">
+            🔍 Modo Zoom & Cámara Lenta Auto
+          </button>
+        </div>
+
+        <!-- Modos y Presets de Movimiento -->
+        <div class="panel-section">
+          <div class="section-header">Regímenes Cinemáticos</div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <button class="cyber-btn preset-btn active" data-preset="harmonic">Oscilador Armónico</button>
+            <button class="cyber-btn preset-btn" data-preset="whitworth">Retorno Whitworth</button>
+            <button class="cyber-btn preset-btn" data-preset="resonant">Vórtice Crítico</button>
+            <button class="cyber-btn preset-btn" data-preset="spirograph">Espirógrafo Sagrado</button>
+          </div>
+        </div>
+
+        <!-- Parámetros Geométricos del Mecanismo -->
+        <div class="panel-section">
+          <div class="section-header">Parámetros Físicos</div>
+          
+          <div class="slider-group">
+            <div class="slider-header">
+              <span>Velocidad Manivela (ω₁)</span>
+              <span class="val-badge" id="val-omega">2.2 rad/s</span>
+            </div>
+            <input type="range" id="slider-omega" min="0.2" max="6.0" step="0.1" value="2.2">
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-header">
+              <span>Distancia Entre Pivotes (d)</span>
+              <span class="val-badge" id="val-d">1.50 m</span>
+            </div>
+            <input type="range" id="slider-d" min="0.4" max="3.0" step="0.05" value="1.50">
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-header">
+              <span>Longitud Manivela (L₁)</span>
+              <span class="val-badge" id="val-l1">1.00 m</span>
+            </div>
+            <input type="range" id="slider-l1" min="0.5" max="2.0" step="0.05" value="1.00">
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-header">
+              <span>Extensión de Barra (Stylus)</span>
+              <span class="val-badge" id="val-ext">1.7x</span>
+            </div>
+            <input type="range" id="slider-ext" min="1.0" max="3.0" step="0.1" value="1.7">
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-header">
+              <span>Persistencia de Traza Hipnótica</span>
+              <span class="val-badge" id="val-trails">500</span>
+            </div>
+            <input type="range" id="slider-trails" min="50" max="1200" step="50" value="500">
+          </div>
+        </div>
+
+        <!-- Toggles de Vectores Cinemáticos -->
+        <div class="panel-section">
+          <div class="section-header">Capas Vectoriales</div>
+          <div class="vector-toggles">
+            <div class="vector-pill active" data-vector="coriolis" style="color: var(--cyan-neon);">
+              <div class="vector-dot" style="background: var(--cyan-neon);"></div>
+              <span>2ω₂ × v_rel (Coriolis)</span>
+            </div>
+            <div class="vector-pill active" data-vector="vrel" style="color: var(--lime-neon);">
+              <div class="vector-dot" style="background: var(--lime-neon);"></div>
+              <span>v_rel (Deslizamiento)</span>
+            </div>
+            <div class="vector-pill" data-vector="centripetal" style="color: var(--amber-neon);">
+              <div class="vector-dot" style="background: var(--amber-neon);"></div>
+              <span>a_n (Centrípeta)</span>
+            </div>
+            <div class="vector-pill" data-vector="euler" style="color: var(--magenta-neon);">
+              <div class="vector-dot" style="background: var(--magenta-neon);"></div>
+              <span>α₂ × r₂ (Euler)</span>
+            </div>
+            <div class="vector-pill" data-vector="total" style="color: var(--white-pure);">
+              <div class="vector-dot" style="background: var(--white-pure);"></div>
+              <span>a_A (Total)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Plano de Fase v_rel vs omega2 -->
+        <div class="panel-section">
+          <div class="section-header">Plano de Fase (Ciclo Límite)</div>
+          <div id="phase-wrapper">
+            <canvas id="phase-canvas"></canvas>
+          </div>
+          <div style="font-size: 11px; color: var(--text-muted); line-height: 1.4;">
+            Órbita cerrada en el espacio de estados <code style="color: var(--cyan-neon);">v_rel</code> vs <code style="color: var(--cyan-neon);">ω₂</code>. La aceleración de Coriolis alcanza picos cuando ambas variables están acopladas de manera constructiva.
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <script type="module" src="simulation.js"></script>
+</body>
+</html>

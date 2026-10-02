@@ -12,6 +12,7 @@ TEST_SUITES = [
     PROJECT_ROOT / "01 Mecanica de Fluidos" / "01 LBM D2Q9 Karman Vortex" / "tests",
     PROJECT_ROOT / "01 Mecanica de Fluidos" / "02 Singularidad Navier Stokes Blowup" / "tests",
     PROJECT_ROOT / "02 Dinamica y Vibraciones" / "01 Pendulo Triple Caotico" / "tests",
+    PROJECT_ROOT / "02 Dinamica y Vibraciones" / "02 Mecanismo Coriolis Collarin" / "tests",
     PROJECT_ROOT / "06 Matematicas y Geometria" / "01 Series de Fourier Geometricas" / "tests",
     PROJECT_ROOT / "06 Matematicas y Geometria" / "02 Identidad de Euler 3D" / "tests",
 ]
