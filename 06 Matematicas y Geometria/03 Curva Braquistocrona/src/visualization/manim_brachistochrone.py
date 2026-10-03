@@ -35,7 +35,8 @@ config.background_color = "#0B0F19"  # Deep Space Cybernetic Navy
 class BrachistochroneRaceAnimation(Animation):
     """
     Deterministic vector animation interpolator for the 4-track race.
-    Guarantees exact physical positions and HUD telemetry every single frame.
+    Guarantees exact physical positions, individual floating chronometers,
+    and real-time HUD telemetry every single frame.
     """
 
     def __init__(
@@ -43,22 +44,46 @@ class BrachistochroneRaceAnimation(Animation):
         scene,
         sim: BrachistochroneSimulator,
         spheres: dict,
+        sphere_labels: dict,
         hud_cards: dict,
         spark_dots: VGroup,
+        go_badge: Mobject,
         to_screen_func,
         run_time: float = 3.7,
         **kwargs,
     ):
-        super().__init__(spheres["braq"], run_time=run_time, rate_func=linear, **kwargs)
+        self.go_badge = go_badge
+        combined = VGroup(
+            *spheres.values(),
+            *sphere_labels.values(),
+            *[c["group"] for c in hud_cards.values()],
+            spark_dots,
+            go_badge,
+        )
+        super().__init__(combined, run_time=run_time, rate_func=linear, **kwargs)
         self.scene = scene
         self.sim = sim
         self.spheres = spheres
+        self.sphere_labels = sphere_labels
         self.hud_cards = hud_cards
         self.spark_dots = spark_dots
         self.to_screen = to_screen_func
         self.last_tick = {k: -1 for k in spheres}
 
+        # Offset vectors for floating sphere labels to guarantee zero collision
+        self.label_offsets = {
+            "rect": np.array([0.36, 0.22, 0.0]),
+            "parab": np.array([0.36, 0.08, 0.0]),
+            "braq": np.array([0.36, -0.14, 0.0]),
+            "circ": np.array([-0.38, -0.16, 0.0]),
+        }
+
     def interpolate_mobject(self, alpha: float):
+        # Smoothly fade out "LIBERACION SIMULTANEA" badge early in race
+        if alpha > 0.15:
+            fade_alpha = max(0.0, 1.0 - (alpha - 0.15) * 5.0)
+            self.go_badge.set_opacity(fade_alpha)
+
         # Physical time runs from 0.0 to 1.62 s
         t_sim = alpha * 1.62
         tick_id = int(t_sim * 25)  # 25 Hz digital clock refresh
@@ -70,7 +95,7 @@ class BrachistochroneRaceAnimation(Animation):
 
             card = self.hud_cards[k]
 
-            # Update digital clock and speedometer at 25 Hz or at arrival
+            # Update digital clock and speedometer
             if tick_id != self.last_tick[k] or st.finished:
                 self.last_tick[k] = tick_id
 
@@ -93,6 +118,26 @@ class BrachistochroneRaceAnimation(Animation):
                         font_size=10,
                         color=speed_color,
                     ).move_to(card["bg"].get_bottom() + np.array([0.0, 0.16, 0.0]))
+                )
+
+                # Floating mini-timer over each sphere
+                lbl_pos = screen_pos + self.label_offsets[k]
+                if st.finished:
+                    rank_str = "1º" if k == "braq" else ("2º" if k == "circ" else ("3º" if k == "parab" else "4º"))
+                    lbl_text = f"{rank_str} {st.t_elapsed:.2f}s"
+                    lbl_col = "#00FF66" if k == "braq" else card["color"]
+                else:
+                    lbl_text = f"{st.t_elapsed:.2f}s"
+                    lbl_col = card["color"]
+
+                self.sphere_labels[k].become(
+                    Text(
+                        lbl_text,
+                        font="Consolas",
+                        font_size=9.5,
+                        color=lbl_col,
+                        weight=BOLD,
+                    ).move_to(lbl_pos)
                 )
 
                 if k == "braq" and st.finished:
@@ -301,9 +346,10 @@ class TikTokBrachistochrone(Scene):
         end_group = VGroup(end_ring, end_core, end_lbl, finish_line_seg)
 
         # ----------------------------------------------------
-        # 6. High-Tech Metallic Spheres
+        # 6. High-Tech Metallic Spheres & Floating Mini-Timers
         # ----------------------------------------------------
         spheres = {}
+        sphere_labels = {}
         sphere_group = VGroup()
 
         for key, style in track_styles.items():
@@ -315,6 +361,11 @@ class TikTokBrachistochrone(Scene):
             ball.move_to(start_pt)
             spheres[key] = ball
             sphere_group.add(ball)
+
+            lbl = Text("0.00s", font="Consolas", font_size=9.5, color=style["color"], weight=BOLD)
+            lbl.move_to(start_pt + np.array([0.30, 0.15, 0.0]))
+            sphere_labels[key] = lbl
+            sphere_group.add(lbl)
 
         # Countdown Banner
         countdown_txt = Text(
@@ -438,8 +489,10 @@ class TikTokBrachistochrone(Scene):
             scene=self,
             sim=sim,
             spheres=spheres,
+            sphere_labels=sphere_labels,
             hud_cards=hud_cards,
             spark_dots=spark_dots,
+            go_badge=go_badge,
             to_screen_func=to_screen,
             run_time=3.7,
         )
@@ -452,10 +505,11 @@ class TikTokBrachistochrone(Scene):
             st = track.get_state(1.62, use_target_time=True)
             spheres[k].move_to(to_screen(st.x, st.y))
 
-        # Green pulse shockwave on arrival
+        # Green pulse shockwave on arrival + clean fadeout of mini labels
         arrival_pulse = Circle(radius=0.26, color="#00FF66", stroke_width=4.0).move_to(end_pt)
         self.play(
             arrival_pulse.animate.scale(2.2).set_stroke(opacity=0.0),
+            FadeOut(VGroup(*sphere_labels.values())),
             run_time=0.6,
         )
         self.remove(arrival_pulse)

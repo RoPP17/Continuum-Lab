@@ -24,7 +24,9 @@ pdf_*.txt
 **/temp_media/
 **/test_cache/
 **/partial_movie_files/
+**/frames/
 RENDERS/**/videos/
+
 render_gyroscope.py
 test_frame_*.png
 
