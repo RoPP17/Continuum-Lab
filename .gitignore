@@ -19,6 +19,18 @@ ENV/
 *.mp3
 *.pdf
 pdf_*.txt
+**/media/
+**/temp_test_media/
+**/temp_media/
+**/test_cache/
+**/partial_movie_files/
+RENDERS/**/videos/
+render_gyroscope.py
+test_frame_*.png
+
+
+
+
 
 # CRITICAL PRIVACY & INFRASTRUCTURE EXCLUSIONS (Local Only - Never in GitHub)
 Skills e Instrucciones/
