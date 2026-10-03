@@ -2,6 +2,7 @@
 Continuum Lab — Dinámica No Lineal y Caos Determinista
 Visualización Vectorial de Ultra-Alta Definición (1080x1920 @ 60 FPS, 9:16 Vertical)
 Enjambre de 50 Doble Péndulos Planos Hamiltoniano con Divergencia de Lyapunov
+Versiones: Español (ES) e Inglés (EN)
 """
 
 import sys
@@ -24,14 +25,51 @@ config.frame_height = 16.0
 config.frame_rate = 60
 config.background_color = "#0B0F19"  # Dark Cosmic Void
 
+TEXT_CONFIG = {
+    "es": {
+        "hud_title": "[ CONTINUUM LAB // SISTEMAS DINÁMICOS ]",
+        "phase_1": "FASE 1: ORDEN",
+        "phase_2": "FASE 2: BIFURCACIÓN",
+        "phase_3": "FASE 3: CAOS",
+        "swarm_label": "ENJAMBRE     : 50 PÉNDULOS IDÉNTICOS",
+        "perturb_label": "PERTURBACIÓN : Δθ = 10⁻⁶ rad (0.000057°)",
+        "lyapunov_label": "EXP. LYAPUNOV: λ ≈ 1.42 s⁻¹",
+        "divergence_label": "DIVERGENCIA  : |ΔX(t)| ~ e^(λ·t)",
+        "determinism_label": "DETERMINISMO : 100% (CERO AZAR)",
+        "sep_prefix": "SEPARACIÓN   : ",
+        "callout_line1": "SEGUNDO 0 AL 5: PARECEN UN SOLO PÉNDULO.",
+        "callout_line2": "SEGUNDO 7: LA MARIPOSA DESTRUYE EL ORDEN.",
+        "subtext": "SISTEMA NO LINEAL DE EULER-LAGRANGE | CONSERVACIÓN HAMILTONIANA ΔE/E₀ < 10⁻⁷",
+    },
+    "en": {
+        "hud_title": "[ CONTINUUM LAB // DYNAMICAL SYSTEMS ]",
+        "phase_1": "PHASE 1: ORDER",
+        "phase_2": "PHASE 2: BIFURCATION",
+        "phase_3": "PHASE 3: CHAOS",
+        "swarm_label": "SWARM        : 50 IDENTICAL PENDULUMS",
+        "perturb_label": "PERTURBATION : Δθ = 10⁻⁶ rad (0.000057°)",
+        "lyapunov_label": "LYAPUNOV EXP : λ ≈ 1.42 s⁻¹",
+        "divergence_label": "DIVERGENCE   : |ΔX(t)| ~ e^(λ·t)",
+        "determinism_label": "DETERMINISM  : 100% (ZERO RANDOMNESS)",
+        "sep_prefix": "SEPARATION   : ",
+        "callout_line1": "SECONDS 0 TO 5: THEY LOOK LIKE A SINGLE PENDULUM.",
+        "callout_line2": "SECOND 7: THE BUTTERFLY SHATTERS ORDER.",
+        "subtext": "NONLINEAR EULER-LAGRANGE SYSTEM | HAMILTONIAN CONSERVATION ΔE/E₀ < 10⁻⁷",
+    },
+}
 
-class SwarmDoublePendulumScene(Scene):
+
+class BaseSwarmDoublePendulumScene(Scene):
     """
-    Simulación en Manim Community del Caos Determinista mediante un
-    enjambre de 50 dobles péndulos planos con divergencia exponencial de Lyapunov.
+    Clase base para la simulación del enjambre de 50 doble péndulos.
+    Permite instanciar la escena en español ('es') o en inglés ('en').
     """
+
+    lang = "es"
 
     def construct(self):
+        txts = TEXT_CONFIG[self.lang]
+
         # =========================================================================
         # 1. PRECOMPUTACIÓN FÍSICA Y VECTORIAL (DOP853 Runge-Kutta Orden 8(5,3))
         # =========================================================================
@@ -143,7 +181,7 @@ class SwarmDoublePendulumScene(Scene):
         ).move_to(UP * 6.35)
 
         hud_title = Text(
-            "[ CONTINUUM LAB // SISTEMAS DINÁMICOS ]",
+            txts["hud_title"],
             font="Consolas",
             font_size=12,
             weight=BOLD,
@@ -151,7 +189,7 @@ class SwarmDoublePendulumScene(Scene):
         ).move_to(top_box.get_top() + DOWN * 0.28 + LEFT * 1.55)
 
         phase_status = Text(
-            "T = 00.0s | FASE 1: ORDEN",
+            f"T = 00.0s | {txts['phase_1']}",
             font="Consolas",
             font_size=12,
             color="#E2E8F0",
@@ -164,21 +202,21 @@ class SwarmDoublePendulumScene(Scene):
             stroke_width=1.0,
         )
 
-        # Columna Izquierda de Telemetría (Alineada estrictamente a la izquierda en X = -3.8)
+        # Columna Izquierda de Telemetría
         t_enjambre = Text(
-            "ENJAMBRE     : 50 PÉNDULOS IDÉNTICOS",
+            txts["swarm_label"],
             font="Consolas",
             font_size=10.5,
             color="#CBD5E1",
         )
         t_perturb = Text(
-            "PERTURBACIÓN : Δθ = 10⁻⁶ rad (0.000057°)",
+            txts["perturb_label"],
             font="Consolas",
             font_size=10.5,
             color="#94A3B8",
         )
         t_lyapunov = Text(
-            "EXP. LYAPUNOV: λ ≈ 1.42 s⁻¹",
+            txts["lyapunov_label"],
             font="Consolas",
             font_size=10.5,
             color="#00F0FF",
@@ -189,21 +227,21 @@ class SwarmDoublePendulumScene(Scene):
         left_col.move_to(top_box.get_center() + DOWN * 0.22)
         left_col.align_to(top_box.get_left() + RIGHT * 0.35, LEFT)
 
-        # Columna Derecha de Telemetría (Alineada estrictamente a la izquierda en X = +0.5)
+        # Columna Derecha de Telemetría
         t_divergencia = Text(
-            "DIVERGENCIA  : |ΔX(t)| ~ e^(λ·t)",
+            txts["divergence_label"],
             font="Consolas",
             font_size=10.5,
             color="#FF0055",
         )
         t_determinismo = Text(
-            "DETERMINISMO : 100% (CERO AZAR)",
+            txts["determinism_label"],
             font="Consolas",
             font_size=10.5,
             color="#39FF14",
         )
         t_separacion = Text(
-            "SEPARACIÓN   : 0.07 mm",
+            f"{txts['sep_prefix']}0.07 mm",
             font="Consolas",
             font_size=10.5,
             weight=BOLD,
@@ -215,14 +253,15 @@ class SwarmDoublePendulumScene(Scene):
         right_col.move_to(top_box.get_center() + DOWN * 0.22)
         right_col.align_to(top_box.get_center() + RIGHT * 0.45, LEFT)
 
-        top_hud = VGroup(
+        top_hud_static = VGroup(
             top_box,
             hud_title,
-            phase_status,
             divider_top,
             left_col,
-            right_col,
+            t_divergencia,
+            t_determinismo,
         )
+        hud_dynamic = VGroup(phase_status, t_separacion)
 
         # =========================================================================
         # 4. CALLOUT DE RETENCIÓN MÓVIL (SAFE ZONE INFERIOR: Y < -5.5)
@@ -238,17 +277,17 @@ class SwarmDoublePendulumScene(Scene):
         ).move_to(DOWN * 6.40)
 
         c_line1 = Text(
-            "SEGUNDO 0 AL 5: PARECEN UN SOLO PÉNDULO.",
+            txts["callout_line1"],
             font="Consolas",
-            font_size=14,
+            font_size=13.5,
             weight=BOLD,
             color="#FFE600",
         ).move_to(bottom_box.get_top() + DOWN * 0.42)
 
         c_line2 = Text(
-            "SEGUNDO 7: LA MARIPOSA DESTRUYE EL ORDEN.",
+            txts["callout_line2"],
             font="Consolas",
-            font_size=14,
+            font_size=13.5,
             weight=BOLD,
             color="#FF0055",
         ).move_to(bottom_box.get_top() + DOWN * 0.88)
@@ -261,7 +300,7 @@ class SwarmDoublePendulumScene(Scene):
         )
 
         c_subtext = Text(
-            "SISTEMA NO LINEAL DE EULER-LAGRANGE | CONSERVACIÓN HAMILTONIANA ΔE/E₀ < 10⁻⁷",
+            txts["subtext"],
             font="Consolas",
             font_size=9.5,
             color="#64748B",
@@ -307,26 +346,25 @@ class SwarmDoublePendulumScene(Scene):
             tr.set_stroke(color=hex_colors[k][0], opacity=[0.05, 0.85])
             trails.append(tr)
 
-        # Agregar elementos al lienzo en el orden de profundidad correcto
-        self.add(*trails)
-        self.add(*rods1)
-        self.add(*rods2)
-        self.add(*bobs2)
-        self.add(pivot_group)
-        self.add(top_hud)
+        # Grupo activo del enjambre para garantizar redibujado continuo en Cairo
+        swarm_group = VGroup(*trails, *rods1, *rods2, *bobs2)
+
+        # Agregar elementos al lienzo
+        self.add(top_hud_static)
+        self.add(hud_dynamic)
         self.add(bottom_hud)
+        self.add(pivot_group)
+        self.add(swarm_group)
 
         # =========================================================================
-        # 6. SINCRONIZADOR VECTORIAL DINÁMICO (60 FPS NATIVE CLOCK)
+        # 6. SINCRONIZADORES VECTORIALES DINÁMICOS VINCULADOS A MOBJECTS
         # =========================================================================
         time_tracker = ValueTracker(0.0)
         last_sec_int = [-1]
 
-        def update_swarm(dt):
+        def update_swarm(mob, dt):
             t_curr = time_tracker.get_value()
             frame_idx = int(np.clip(t_curr * fps, 0, total_frames - 1))
-            t_sec = frame_idx / fps
-
             start_tail = max(0, frame_idx - tail_len)
 
             # Actualización vectorizada de los 50 péndulos
@@ -352,20 +390,24 @@ class SwarmDoublePendulumScene(Scene):
                     cur_opacs = opacities[-len(pts) :]
                     trails[k].set_stroke(color=curr_color, opacity=cur_opacs)
 
-            # Actualización de Telemetría Dinámica (a intervalos de 0.1s para alto rendimiento)
+        def update_hud(mob, dt):
+            t_curr = time_tracker.get_value()
+            frame_idx = int(np.clip(t_curr * fps, 0, total_frames - 1))
+            t_sec = frame_idx / fps
+
             sec_step = int(t_curr * 10)
             if sec_step != last_sec_int[0]:
                 last_sec_int[0] = sec_step
 
                 # Fase dinámica
                 if t_sec < 5.5:
-                    p_txt = f"T = {t_sec:04.1f}s | FASE 1: ORDEN"
+                    p_txt = f"T = {t_sec:04.1f}s | {txts['phase_1']}"
                     p_col = "#E2E8F0"
                 elif t_sec < 7.5:
-                    p_txt = f"T = {t_sec:04.1f}s | FASE 2: BIFURCACIÓN"
+                    p_txt = f"T = {t_sec:04.1f}s | {txts['phase_2']}"
                     p_col = "#00F0FF"
                 else:
-                    p_txt = f"T = {t_sec:04.1f}s | FASE 3: CAOS"
+                    p_txt = f"T = {t_sec:04.1f}s | {txts['phase_3']}"
                     p_col = "#FF0055"
 
                 phase_status.become(
@@ -377,11 +419,11 @@ class SwarmDoublePendulumScene(Scene):
                 # Métrica de separación dinámica
                 span_val = swarm_span[frame_idx]
                 if span_val < 0.001:
-                    sep_str = f"SEPARACIÓN   : {span_val*1000:0.2f} mm"
+                    sep_str = f"{txts['sep_prefix']}{span_val*1000:0.2f} mm"
                 elif span_val < 1.0:
-                    sep_str = f"SEPARACIÓN   : {span_val*100:0.2f} cm"
+                    sep_str = f"{txts['sep_prefix']}{span_val*100:0.2f} cm"
                 else:
-                    sep_str = f"SEPARACIÓN   : {span_val:0.2f} m"
+                    sep_str = f"{txts['sep_prefix']}{span_val:0.2f} m"
 
                 t_separacion.become(
                     Text(
@@ -393,8 +435,9 @@ class SwarmDoublePendulumScene(Scene):
                     ).move_to(right_col[2].get_center())
                 )
 
-        # Vincular sincronizador
-        self.add_updater(update_swarm)
+        # Asignar updaters directamente a Mobjects para forzar redibujado en cada frame
+        swarm_group.add_updater(update_swarm)
+        hud_dynamic.add_updater(update_hud)
 
         # Reproducir animación durante 15.0 segundos continuos exactos
         self.play(
@@ -402,5 +445,18 @@ class SwarmDoublePendulumScene(Scene):
             run_time=duration,
             rate_func=linear,
         )
-        self.remove_updater(update_swarm)
         self.wait(0.1)
+
+
+class SwarmDoublePendulumSceneES(BaseSwarmDoublePendulumScene):
+    """Versión en Español de la simulación del enjambre caótico."""
+    lang = "es"
+
+
+class SwarmDoublePendulumSceneEN(BaseSwarmDoublePendulumScene):
+    """English version of the chaotic double pendulum swarm simulation."""
+    lang = "en"
+
+
+# Alias para retrocompatibilidad
+SwarmDoublePendulumScene = SwarmDoublePendulumSceneES

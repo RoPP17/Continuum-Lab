@@ -64,38 +64,42 @@ class DzhanibekovScene(ThreeDScene):
         self.set_camera_orientation(phi=72 * DEGREES, theta=-45 * DEGREES, gamma=0)
         self.begin_ambient_camera_rotation(rate=0.035)
 
-        # Subtle reference grid in space (invariable plane reference)
-        plane_grid = NumberPlane(
-            x_range=[-4, 4, 1],
-            y_range=[-4, 4, 1],
-            x_length=7.0,
-            y_length=7.0,
-            background_line_style={"stroke_color": "#1E293B", "stroke_width": 0.8, "stroke_opacity": 0.35},
-            faded_line_style={"stroke_color": "#0F172A", "stroke_width": 0.4, "stroke_opacity": 0.20}
+        # Spatial reference rings (subtle aerospace orbital plane)
+        ref_rings = Group(*[
+            ParametricFunction(
+                lambda u, r=r: np.array([r * np.cos(u), -2.6, r * np.sin(u)]),
+                t_range=[0, TAU],
+                color="#1E293B",
+                stroke_width=0.9,
+                stroke_opacity=0.35
+            ) for r in [1.2, 2.2, 3.2]
+        ])
+        ref_axes = Group(
+            Line(start=[-3.2, 0, 0], end=[3.2, 0, 0], color="#1E293B", stroke_width=0.6, stroke_opacity=0.25).shift(DOWN * 2.6),
+            Line(start=[0, 0, -3.2], end=[0, 0, 3.2], color="#1E293B", stroke_width=0.6, stroke_opacity=0.25).shift(DOWN * 2.6)
         )
-        plane_grid.shift(DOWN * 2.8)
-        self.add(plane_grid)
+        self.add(ref_rings, ref_axes)
 
         # =====================================================================
-        # 3. High-Detail Aerospace 3D T-Handle Geometry
+        # 3. High-Detail Aerospace 3D T-Handle Geometry (Solid Metallic Finish)
         # =====================================================================
         # Shaft along intermediate axis (Y)
-        stem = Cylinder(radius=0.10, height=2.4, direction=UP, color="#94A3B8")
+        stem = Cylinder(radius=0.10, height=2.4, direction=UP, color="#94A3B8", fill_opacity=0.90, checkerboard_colors=False)
         
         # Crossbar along major axis (Z)
-        crossbar = Cylinder(radius=0.09, height=1.8, direction=OUT, color="#CBD5E1").shift(UP * 0.7)
+        crossbar = Cylinder(radius=0.09, height=1.8, direction=OUT, color="#CBD5E1", fill_opacity=0.90, checkerboard_colors=False).shift(UP * 0.7)
         
         # Central mounting hex collar
-        hex_collar = Cylinder(radius=0.22, height=0.32, direction=UP, color="#475569").shift(UP * 0.7)
+        hex_collar = Cylinder(radius=0.22, height=0.32, direction=UP, color="#475569", fill_opacity=0.95, checkerboard_colors=False).shift(UP * 0.7)
         
         # Knurled rings along stem
-        ring1 = Cylinder(radius=0.13, height=0.06, direction=UP, color="#64748B").shift(DOWN * 0.4)
-        ring2 = Cylinder(radius=0.13, height=0.06, direction=UP, color="#64748B").shift(DOWN * 0.8)
-        bottom_cap = Sphere(radius=0.14, color="#D97706").shift(DOWN * 1.2)
+        ring1 = Cylinder(radius=0.13, height=0.06, direction=UP, color="#64748B", fill_opacity=0.95, checkerboard_colors=False).shift(DOWN * 0.4)
+        ring2 = Cylinder(radius=0.13, height=0.06, direction=UP, color="#64748B", fill_opacity=0.95, checkerboard_colors=False).shift(DOWN * 0.8)
+        bottom_cap = Sphere(radius=0.14, color="#D97706", fill_opacity=0.95, checkerboard_colors=False).shift(DOWN * 1.2)
         
         # Asymmetric Wingtips (Gold vs Cyan) to make the 180 deg flip vividly clear
-        tip_gold = Sphere(radius=0.18, color="#FFB800").shift(UP * 0.7 + OUT * 0.9)
-        tip_cyan = Sphere(radius=0.18, color="#00F0FF").shift(UP * 0.7 + IN * 0.9)
+        tip_gold = Sphere(radius=0.18, color="#FFB800", fill_opacity=0.95, checkerboard_colors=False).shift(UP * 0.7 + OUT * 0.9)
+        tip_cyan = Sphere(radius=0.18, color="#00F0FF", fill_opacity=0.95, checkerboard_colors=False).shift(UP * 0.7 + IN * 0.9)
 
         t_handle = Group(stem, crossbar, hex_collar, ring1, ring2, bottom_cap, tip_gold, tip_cyan)
         t_handle_orig_pts = {sm: sm.points.copy() for sm in t_handle.get_family() if len(sm.points) > 0}
@@ -156,14 +160,14 @@ class DzhanibekovScene(ThreeDScene):
         # Vector L in space is along +Y: strictly conserved in microgravity
         l_len = 3.0
         l_line = Line3D(start=ORIGIN, end=UP * l_len, color="#00F0FF", thickness=0.035)
-        l_cone = Cone(base_radius=0.10, height=0.30, direction=UP, color="#00F0FF").shift(UP * l_len)
+        l_cone = Cone(base_radius=0.10, height=0.30, direction=UP, color="#00F0FF", fill_opacity=0.95, checkerboard_colors=False).shift(UP * l_len)
         l_group = Group(l_line, l_cone)
         self.add(l_group)
 
         # Vector w (Angular Velocity) in space
         w_len = 2.8
         w_line = Line3D(start=ORIGIN, end=UP * w_len, color="#FF0055", thickness=0.035)
-        w_cone = Cone(base_radius=0.10, height=0.30, direction=UP, color="#FF0055").shift(UP * w_len)
+        w_cone = Cone(base_radius=0.10, height=0.30, direction=UP, color="#FF0055", fill_opacity=0.95, checkerboard_colors=False).shift(UP * w_len)
         w_group = Group(w_line, w_cone)
         w_orig_pts = {sm: sm.points.copy() for sm in w_group.get_family() if len(sm.points) > 0}
         self.add(w_group)
@@ -182,7 +186,7 @@ class DzhanibekovScene(ThreeDScene):
         # --- Top HUD Telemetry Card (Consolas, Aerospace Console Aesthetic) ---
         top_card_bg = RoundedRectangle(
             corner_radius=0.14,
-            width=7.6,
+            width=7.8,
             height=2.3,
             color="#00F0FF",
             stroke_width=1.5,
@@ -194,24 +198,24 @@ class DzhanibekovScene(ThreeDScene):
         title_txt = Text(
             "CONTINUUM LAB // TEOREMA DE LA RAQUETA DE TENIS",
             font="Consolas",
-            font_size=18,
+            font_size=17,
             weight=BOLD,
             color="#00F0FF"
         ).move_to(top_card_bg.get_top() + DOWN * 0.32)
 
         div_line = Line(
-            start=top_card_bg.get_left() + RIGHT * 0.4,
-            end=top_card_bg.get_right() + LEFT * 0.4,
+            start=top_card_bg.get_left() + RIGHT * 0.35,
+            end=top_card_bg.get_right() + LEFT * 0.35,
             color="#1E293B",
             stroke_width=1.2
         ).move_to(top_card_bg.get_top() + DOWN * 0.58)
 
-        # Multi-column telemetry text
+        # Monospaced parameter lines
         col1_txt = Text(
             "INERCIA       : I1=1.0 < I2=2.4 < I3=4.2 kg·m²\n"
             "EJE INTERMEDIO: ESTADO HIPERBÓLICO INESTABLE",
             font="Consolas",
-            font_size=14,
+            font_size=13.5,
             line_spacing=1.3,
             color="#E2E8F0"
         ).next_to(div_line, DOWN, buff=0.15).align_to(div_line, LEFT)
@@ -220,18 +224,18 @@ class DzhanibekovScene(ThreeDScene):
             "TORQUE EXTERNO: tau = 0.00 N·m (MICROGRAVEDAD)\n"
             "CONSERVACIÓN  : |L| = 28.80 N·m·s  |  E_rot = 172.8 J",
             font="Consolas",
-            font_size=14,
+            font_size=13.5,
             line_spacing=1.3,
             color="#38BDF8"
         ).next_to(col1_txt, DOWN, buff=0.12).align_to(div_line, LEFT)
 
         # Dynamic State Banners (Pre-created to eliminate LaTeX overhead)
         banner_pos = top_card_bg.get_bottom() + UP * 0.32
-        b_p1 = Text("[●] FASE 1: GIRO CUASI-ESTABLE EN EJE INTERMEDIO", font="Consolas", font_size=14, weight=BOLD, color="#00F0FF").move_to(banner_pos)
-        b_p2 = Text("[▲] FASE 2: >> FLIP HOMOCLÍNICO ACROBÁTICO (180°) <<", font="Consolas", font_size=14, weight=BOLD, color="#FF0055").move_to(banner_pos)
-        b_p3 = Text("[●] FASE 3: ROTACIÓN INVERTIDA (-Y) ESTABLE", font="Consolas", font_size=14, weight=BOLD, color="#FFB800").move_to(banner_pos)
-        b_p4 = Text("[▲] FASE 4: >> SEGUNDO FLIP HOMOCLÍNICO (REVERSIÓN) <<", font="Consolas", font_size=14, weight=BOLD, color="#FF0055").move_to(banner_pos)
-        b_p5 = Text("[●] FASE 5: CICLO DE FASE PERIÓDICO RESTABLECIDO", font="Consolas", font_size=14, weight=BOLD, color="#00F0FF").move_to(banner_pos)
+        b_p1 = Text("[●] FASE 1: GIRO CUASI-ESTABLE EN EJE INTERMEDIO", font="Consolas", font_size=13, weight=BOLD, color="#00F0FF").move_to(banner_pos)
+        b_p2 = Text("[▲] FASE 2: >> FLIP HOMOCLÍNICO ACROBÁTICO (180°) <<", font="Consolas", font_size=13, weight=BOLD, color="#FF0055").move_to(banner_pos)
+        b_p3 = Text("[●] FASE 3: ROTACIÓN INVERTIDA (-Y) ESTABLE", font="Consolas", font_size=13, weight=BOLD, color="#FFB800").move_to(banner_pos)
+        b_p4 = Text("[▲] FASE 4: >> SEGUNDO FLIP HOMOCLÍNICO (REVERSIÓN) <<", font="Consolas", font_size=13, weight=BOLD, color="#FF0055").move_to(banner_pos)
+        b_p5 = Text("[●] FASE 5: CICLO DE FASE PERIÓDICO RESTABLECIDO", font="Consolas", font_size=13, weight=BOLD, color="#00F0FF").move_to(banner_pos)
 
         b_p2.set_opacity(0.0)
         b_p3.set_opacity(0.0)
@@ -244,8 +248,8 @@ class DzhanibekovScene(ThreeDScene):
         # --- Vector Legend Badges (Under HUD) ---
         legend_bg = RoundedRectangle(
             corner_radius=0.08,
-            width=7.6,
-            height=0.55,
+            width=7.8,
+            height=0.52,
             color="#1E293B",
             stroke_width=1.0,
             fill_color="#0D1117",
@@ -255,19 +259,18 @@ class DzhanibekovScene(ThreeDScene):
         legend_txt = Text(
             "■ L (Cian): Momento Angular [INMÓVIL]    ■ w (Carmesí): Velocidad Angular [FLIP]",
             font="Consolas",
-            font_size=13,
+            font_size=12.5,
             color="#CBD5E1"
         ).move_to(legend_bg)
         
-        # Color specific parts of legend text
         legend_group = VGroup(legend_bg, legend_txt)
         self.add_fixed_in_frame_mobjects(legend_group)
 
         # --- Lower Callout Card (Bottom Safe Zone > 320 px) ---
         bot_card_bg = RoundedRectangle(
             corner_radius=0.14,
-            width=7.6,
-            height=1.5,
+            width=7.8,
+            height=1.55,
             color="#38BDF8",
             stroke_width=1.3,
             stroke_opacity=0.80,
@@ -279,19 +282,19 @@ class DzhanibekovScene(ThreeDScene):
             "\"SIN CONTACTO NI FUERZA EXTERNA.\n"
             "EL CUERPO SE VOLTEA 180° POR PURA GEOMETRÍA DEL ESPACIO DE FASES.\"",
             font="Segoe UI",
-            font_size=17,
+            font_size=14,
             weight=BOLD,
             color="#F8FAFC",
-            line_spacing=1.3
+            line_spacing=1.25
         ).move_to(bot_card_bg.get_top() + DOWN * 0.55)
 
         subtitle_txt = Text(
             "MECÁNICA CLÁSICA // SEPARATRIZ HOMOCLÍNICA DE POINSOT",
             font="Consolas",
-            font_size=12,
+            font_size=11.5,
             weight=BOLD,
             color="#00F0FF"
-        ).move_to(bot_card_bg.get_bottom() + UP * 0.32)
+        ).move_to(bot_card_bg.get_bottom() + UP * 0.30)
 
         bot_hud = VGroup(bot_card_bg, dilemma_txt, subtitle_txt)
         self.add_fixed_in_frame_mobjects(bot_hud)
@@ -317,7 +320,6 @@ class DzhanibekovScene(ThreeDScene):
                 sm.points = base_pts @ R.T
 
             # 3. Update Vector w (Angular velocity direction in space)
-            # R maps body w_body to space
             ws = omega_space[k]
             ws_norm = np.linalg.norm(ws)
             if ws_norm > 1e-4:
@@ -342,11 +344,9 @@ class DzhanibekovScene(ThreeDScene):
                     sm.points = pts @ R_align.T
 
             # 4. Update Tip Trail
-            # Golden tip in body frame is at [0, 0.7, 0.9]
             gold_tip_body = np.array([0.0, 0.7, 0.9])
             gold_tip_space = R @ gold_tip_body
             tip_trail_pts.append(gold_tip_space)
-            # Keep last 150 points for glowing trail ribbon
             if len(tip_trail_pts) > 150:
                 tip_trail_pts.pop(0)
             if len(tip_trail_pts) >= 2:
