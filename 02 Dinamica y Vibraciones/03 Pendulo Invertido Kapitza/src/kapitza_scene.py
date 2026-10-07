@@ -4,12 +4,15 @@ Scene: Kapitza's Inverted Pendulum Paradox (Ultra-HD 1080x1920 60 FPS, 9:16 Vert
 Division: 02 Dinamica y Vibraciones / 03 Pendulo Invertido Kapitza
 
 Rigorously implements:
-1. Exact nonlinear dynamics integrated via Scipy solve_ivp
-2. Landau-Kapitza effective potential well visualization with rolling bead
-3. Real-time telemetry HUD formatted with Consolas monospace typography
-4. Strict mobile safe zones (Top > 160 px, Bottom > 320 px)
-5. Three dramatic phases:
-   - Phase 1 (0-4s): High-frequency stabilization (55 Hz)
+1. Exact nonlinear dynamics integrated via Scipy solve_ivp (RK45)
+2. Native 9:16 1080x1920 vertical canvas pre-configured at module load time (zero distortion)
+3. Horizontal machine guide bench with dual precision chrome shafts and linear bearings
+4. Motorized eccentric drive unit displaying high-frequency rotation ("la parte que gira")
+5. Landau-Kapitza dynamic effective potential well with real-time rolling bead
+6. Real-time engineering telemetry HUD with Consolas monospace typography
+7. Strict mobile safe zones (Top > 160 px, Bottom > 320 px)
+8. Three dramatic phases:
+   - Phase 1 (0-4s): High-frequency stabilization (55 Hz, a*omega^2 = 486 g)
    - Phase 2 (4-8s): 35° lateral perturbation & self-recovery
    - Phase 3 (8-15s): Sudden shutdown & violent gravitational collapse
 """
@@ -18,6 +21,14 @@ import sys
 from pathlib import Path
 import numpy as np
 from manim import *
+
+# Pre-configure Manim settings at module level for native 1080x1920 9:16 vertical resolution
+config.pixel_width = 1080
+config.pixel_height = 1920
+config.frame_width = 9.0
+config.frame_height = 16.0
+config.frame_rate = 60
+config.background_color = "#070B14"
 
 # Ensure project modules are importable
 project_root = Path(__file__).resolve().parent.parent
@@ -32,497 +43,644 @@ from src.physics import (
 )
 
 
-def set_vgroup_opacity(vgroup: VGroup, opacity: float):
-    """Sets opacity recursively across all submobjects."""
-    vgroup.set_opacity(opacity)
-    for sub in vgroup.submobjects:
-        sub.set_opacity(opacity)
-        if isinstance(sub, VGroup):
-            set_vgroup_opacity(sub, opacity)
+def create_kapitza_scene_class(lang: str = "ES"):
+    """Factory creating localized Kapitza Pendulum scene."""
 
+    class LocalizedKapitzaScene(Scene):
+        initial_time: float = 0.0
 
-class KapitzaPendulumScene(Scene):
-    """
-    Manim Community 1080x1920 60 FPS 9:16 vertical visualization
-    of the Kapitza Inverted Pendulum Paradox.
-    """
-    initial_time: float = 0.0
+        def construct(self):
+            # Precompute exact physical solution decoupled from renderer
+            phys_cfg = KapitzaConfig()
+            sol: KapitzaSolution = solve_kapitza_dynamics(phys_cfg)
 
-    def construct(self):
-        # -------------------------------------------------------------
-        # 1. Canvas & Physical Engine Integration
-        # -------------------------------------------------------------
-        config.pixel_width = 1080
-        config.pixel_height = 1920
-        config.frame_width = 9.0
-        config.frame_height = 16.0
-        config.background_color = "#070B12"
+            time_tracker = ValueTracker(self.initial_time)
 
-        # Precompute exact physical solution decoupled from renderer
-        phys_cfg = KapitzaConfig()
-        sol: KapitzaSolution = solve_kapitza_dynamics(phys_cfg)
+            def get_frame_idx(t: float) -> int:
+                return int(np.clip(t * phys_cfg.fps, 0, sol.n_frames - 1))
 
-        time_tracker = ValueTracker(self.initial_time)
-
-        def get_frame_idx(t: float) -> int:
-            return int(np.clip(t * phys_cfg.fps, 0, sol.n_frames - 1))
-
-        # -------------------------------------------------------------
-        # 2. Engineering Technical Background & Atmosphere
-        # -------------------------------------------------------------
-        grid_lines = VGroup()
-        for x in np.arange(-4.0, 4.5, 1.0):
-            grid_lines.add(
-                Line(
-                    start=[x, -7.5, 0],
-                    end=[x, 7.5, 0],
-                    stroke_color="#1E293B",
-                    stroke_width=0.6,
-                    stroke_opacity=0.35,
+            # -------------------------------------------------------------
+            # 1. Engineering Technical Grid & Background Atmosphere
+            # -------------------------------------------------------------
+            grid_group = VGroup()
+            for x in np.arange(-4.0, 4.5, 1.0):
+                grid_group.add(
+                    Line(
+                        start=[x, -7.6, 0],
+                        end=[x, 7.6, 0],
+                        stroke_color="#1E293B",
+                        stroke_width=0.6,
+                        stroke_opacity=0.30,
+                    )
                 )
-            )
-        for y in np.arange(-7.0, 7.5, 1.0):
-            grid_lines.add(
-                Line(
-                    start=[-4.2, y, 0],
-                    end=[4.2, y, 0],
-                    stroke_color="#1E293B",
-                    stroke_width=0.6,
-                    stroke_opacity=0.35,
+            for y in np.arange(-7.0, 7.5, 1.0):
+                grid_group.add(
+                    Line(
+                        start=[-4.2, y, 0],
+                        end=[4.2, y, 0],
+                        stroke_color="#1E293B",
+                        stroke_width=0.6,
+                        stroke_opacity=0.30,
+                    )
                 )
+            self.add(grid_group)
+
+            # -------------------------------------------------------------
+            # 2. Header & Title in Top Safe Zone (Y in [5.7, 7.4])
+            # -------------------------------------------------------------
+            header_group = VGroup()
+
+            tag_str = "CONTINUUM LAB • DINÁMICA NO LINEAL" if lang == "ES" else "CONTINUUM LAB • NONLINEAR DYNAMICS"
+            tag_box = RoundedRectangle(
+                width=4.4,
+                height=0.40,
+                corner_radius=0.10,
+                fill_color="#0F172A",
+                fill_opacity=0.90,
+                stroke_color="#0284C7",
+                stroke_width=1.2,
+            ).move_to([0.0, 7.15, 0.0])
+
+            tag_text = Text(
+                tag_str,
+                font="Consolas",
+                font_size=11,
+                weight=BOLD,
+                color="#38BDF8",
+            ).move_to(tag_box.get_center())
+
+            title_str = "¿POR QUÉ NO CAE AL REVÉS?" if lang == "ES" else "WHY DOESN'T IT FALL DOWN?"
+            main_title = Text(
+                title_str,
+                font="Arial",
+                weight=BOLD,
+                font_size=23,
+                color="#FFFFFF",
+            ).move_to([0.0, 6.60, 0.0])
+
+            sub_str = "PARADOJA DE KAPITZA: Estabilización Asintótica por Vibración Rápida" if lang == "ES" else "KAPITZA PARADOX: High-Frequency Vibrational Dynamic Stabilization"
+            subtitle = Text(
+                sub_str,
+                font="Arial",
+                font_size=11.5,
+                color="#94A3B8",
+            ).move_to([0.0, 6.18, 0.0])
+
+            header_divider = Line(
+                start=[-4.1, 5.85, 0],
+                end=[4.1, 5.85, 0],
+                stroke_color="#334155",
+                stroke_width=1.2,
             )
-        self.add(grid_lines)
 
-        # -------------------------------------------------------------
-        # 3. Header & Branding (Safe Zone: y in [5.4, 6.6])
-        # -------------------------------------------------------------
-        brand_badge = Text(
-            "CONTINUUM LAB • DINÁMICA NO LINEAL",
-            font="Consolas",
-            font_size=13,
-            color="#38BDF8",
-        ).move_to([0.0, 6.45, 0.0])
+            header_group.add(tag_box, tag_text, main_title, subtitle, header_divider)
+            self.add(header_group)
 
-        main_title = Text(
-            "PARADOJA DE KAPITZA",
-            font="Arial",
-            weight=BOLD,
-            font_size=28,
-            color="#FFFFFF",
-        ).next_to(brand_badge, DOWN, buff=0.15)
+            # -------------------------------------------------------------
+            # 3. Real-time Telemetry & HUD Console (Y in [4.20, 5.65])
+            # -------------------------------------------------------------
+            @always_redraw
+            def dynamic_telemetry_hud():
+                t = time_tracker.get_value()
+                idx = get_frame_idx(t)
 
-        subtitle = Text(
-            "Estabilización Invertida por Alta Frecuencia",
-            font="Arial",
-            font_size=15,
-            color="#94A3B8",
-        ).next_to(main_title, DOWN, buff=0.12)
+                th_deg = sol.theta_deg[idx]
+                w_inst = sol.omega_inst[idx]
+                f_inst = sol.f_inst[idx]
+                phase = sol.phase_id[idx]
+                a_base_val = sol.a_base[idx]
+                v_eff_val = sol.v_eff_instant[idx]
 
-        self.add(brand_badge, main_title, subtitle)
+                hud_bg = RoundedRectangle(
+                    width=8.3,
+                    height=1.45,
+                    corner_radius=0.14,
+                    stroke_color="#334155",
+                    stroke_width=1.5,
+                    fill_color="#0A1124",
+                    fill_opacity=0.92,
+                ).move_to([0.0, 4.95, 0.0])
 
-        # -------------------------------------------------------------
-        # 4. Real-time Glassmorphic Telemetry HUD (y in [3.25, 5.35])
-        # -------------------------------------------------------------
-        hud_bg = RoundedRectangle(
-            width=8.2,
-            height=2.05,
-            corner_radius=0.15,
-            stroke_color="#334155",
-            stroke_width=1.5,
-            fill_color="#0F172A",
-            fill_opacity=0.90,
-        ).move_to([0.0, 4.30, 0.0])
+                status_col = "#00F2FE" if phase == 1 else ("#EC4899" if phase == 2 else "#EF4444")
+                status_bar = RoundedRectangle(
+                    width=0.12,
+                    height=1.25,
+                    corner_radius=0.06,
+                    stroke_width=0,
+                    fill_color=status_col,
+                    fill_opacity=1.0,
+                ).move_to([-4.02, 4.95, 0.0])
 
-        hud_status_bar = RoundedRectangle(
-            width=0.12,
-            height=1.85,
-            corner_radius=0.06,
-            stroke_width=0,
-            fill_color="#00F2FE",
-            fill_opacity=1.0,
-        ).move_to([-3.92, 4.30, 0.0])
-
-        hud_divider = Line(
-            start=[-3.7, 3.65, 0],
-            end=[3.7, 3.65, 0],
-            stroke_color="#1E293B",
-            stroke_width=1.0,
-        )
-
-        self.add(hud_bg, hud_status_bar, hud_divider)
-
-        # Pre-build HUD text groups for the three phases to guarantee 60 FPS
-        # Phase 1 HUD lines
-        p1_l1 = Text("CONDICIÓN KAPITZA : (a·ω)² > 2·g·L (CUMPLIDA)", font="Consolas", font_size=13, color="#00F2FE").move_to([-3.65, 5.00, 0], aligned_edge=LEFT)
-        p1_l2 = Text("FRECUENCIA BASE   : f = 55.0 Hz (ALTA VELOCIDAD)", font="Consolas", font_size=13, color="#F1F5F9").move_to([-3.65, 4.65, 0], aligned_edge=LEFT)
-        p1_l3 = Text("EQUILIBRIO VERTICAL: ASINTÓTICAMENTE ESTABLE", font="Consolas", font_size=13, color="#10B981").move_to([-3.65, 4.30, 0], aligned_edge=LEFT)
-        p1_l4 = Text("ESTADO DINÁMICO   : POZO DE ENERGÍA EFECTIVA", font="Consolas", font_size=13, color="#F59E0B").move_to([-3.65, 3.95, 0], aligned_edge=LEFT)
-        hud_p1 = VGroup(p1_l1, p1_l2, p1_l3, p1_l4)
-
-        # Phase 2 HUD lines
-        p2_l1 = Text("CONDICIÓN KAPITZA : (a·ω)² > 2·g·L (CUMPLIDA)", font="Consolas", font_size=13, color="#00F2FE").move_to([-3.65, 5.00, 0], aligned_edge=LEFT)
-        p2_l2 = Text("FRECUENCIA BASE   : f = 55.0 Hz (ALTA VELOCIDAD)", font="Consolas", font_size=13, color="#F1F5F9").move_to([-3.65, 4.65, 0], aligned_edge=LEFT)
-        p2_l3 = Text("EQUILIBRIO VERTICAL: ASINTÓTICAMENTE ESTABLE", font="Consolas", font_size=13, color="#10B981").move_to([-3.65, 4.30, 0], aligned_edge=LEFT)
-        p2_l4 = Text("ESTADO DINÁMICO   : PERTURBACIÓN EXTERNA (Δθ = 35°)", font="Consolas", font_size=13, color="#FF0055").move_to([-3.65, 3.95, 0], aligned_edge=LEFT)
-        hud_p2 = VGroup(p2_l1, p2_l2, p2_l3, p2_l4)
-
-        # Phase 3 HUD lines
-        p3_l1 = Text("CONDICIÓN KAPITZA : (a·ω)² > 2·g·L (ANULADA)", font="Consolas", font_size=13, color="#EF4444").move_to([-3.65, 5.00, 0], aligned_edge=LEFT)
-        p3_l2 = Text("FRECUENCIA BASE   : f = 0.0 Hz (MOTOR APAGADO)", font="Consolas", font_size=13, color="#94A3B8").move_to([-3.65, 4.65, 0], aligned_edge=LEFT)
-        p3_l3 = Text("EQUILIBRIO VERTICAL: ESTÁTICAMENTE INESTABLE", font="Consolas", font_size=13, color="#EF4444").move_to([-3.65, 4.30, 0], aligned_edge=LEFT)
-        p3_l4 = Text("ESTADO DINÁMICO   : DESPLOME / CAÍDA LIBRE", font="Consolas", font_size=13, color="#F87171").move_to([-3.65, 3.95, 0], aligned_edge=LEFT)
-        hud_p3 = VGroup(p3_l1, p3_l2, p3_l3, p3_l4)
-
-        set_vgroup_opacity(hud_p1, 1.0)
-        set_vgroup_opacity(hud_p2, 0.0)
-        set_vgroup_opacity(hud_p3, 0.0)
-        self.add(hud_p1, hud_p2, hud_p3)
-
-        # Row 5: Dynamic Telemetry Metrics
-        metrics_container = VGroup().move_to([0.0, 3.45, 0.0])
-        initial_metrics = Text(
-            "θ: 180.0°   |   a_base: +000 m/s²   |   Margen R: 9.74",
-            font="Consolas",
-            font_size=12,
-            color="#94A3B8",
-        ).move_to([0.0, 3.45, 0.0])
-        metrics_container.add(initial_metrics)
-        self.add(metrics_container)
-
-        # -------------------------------------------------------------
-        # 5. Mechanical Physical System (Central Zone: y in [-1.5, 3.1])
-        # -------------------------------------------------------------
-        rail_y_center = 0.85
-        rail_height = 2.4
-        rail_bg = RoundedRectangle(
-            width=0.22,
-            height=rail_height,
-            corner_radius=0.08,
-            fill_color="#1E293B",
-            fill_opacity=0.9,
-            stroke_color="#475569",
-            stroke_width=1.5,
-        ).move_to([0.0, rail_y_center, 0.0])
-
-        rail_ticks = VGroup()
-        for y_tick in np.linspace(rail_y_center - 1.0, rail_y_center + 1.0, 11):
-            rail_ticks.add(
-                Line(
-                    start=[-0.18, y_tick, 0],
-                    end=[0.18, y_tick, 0],
-                    stroke_color="#64748B",
-                    stroke_width=1.0,
-                )
-            )
-        rail_assembly = VGroup(rail_bg, rail_ticks)
-        self.add(rail_assembly)
-
-        # Carriage assembly
-        carriage_box = RoundedRectangle(
-            width=1.1,
-            height=0.42,
-            corner_radius=0.08,
-            fill_color="#334155",
-            fill_opacity=1.0,
-            stroke_color="#00F2FE",
-            stroke_width=2.0,
-        )
-        bearing_pin = Circle(
-            radius=0.10,
-            fill_color="#F59E0B",
-            fill_opacity=1.0,
-            stroke_color="#FFFFFF",
-            stroke_width=1.5,
-        )
-        carriage_assembly = VGroup(carriage_box, bearing_pin)
-
-        vib_arrow_l = Text("↕", font="Arial", font_size=18, color="#00F2FE").next_to(carriage_box, LEFT, buff=0.1)
-        vib_arrow_r = Text("↕", font="Arial", font_size=18, color="#00F2FE").next_to(carriage_box, RIGHT, buff=0.1)
-        vib_indicators = VGroup(vib_arrow_l, vib_arrow_r)
-
-        # Rod and Bob
-        L_vis = 2.00
-        rod_line = Line(start=[0, 0, 0], end=[0, L_vis, 0], stroke_color="#CBD5E1", stroke_width=5.0)
-        rod_shine = Line(start=[0, 0, 0], end=[0, L_vis, 0], stroke_color="#FFFFFF", stroke_width=1.5)
-
-        bob_glow = Circle(radius=0.34, fill_color="#00F2FE", fill_opacity=0.30, stroke_width=0)
-        bob_body = Circle(radius=0.22, fill_color="#0284C7", fill_opacity=1.0, stroke_color="#38BDF8", stroke_width=2.5)
-        bob_core = Circle(radius=0.08, fill_color="#FFFFFF", fill_opacity=1.0, stroke_width=0)
-        bob_assembly = VGroup(bob_glow, bob_body, bob_core)
-
-        ref_vertical = DashedLine(
-            start=[0, rail_y_center, 0],
-            end=[0, rail_y_center + L_vis + 0.25, 0],
-            stroke_color="#475569",
-            stroke_width=1.2,
-            dash_length=0.08,
-        )
-        self.add(ref_vertical, carriage_assembly, vib_indicators, rod_line, rod_shine, bob_assembly)
-
-        # External perturbation arrow (Phase 2)
-        pert_arrow = Arrow(
-            start=[2.2, 2.85, 0],
-            end=[0.4, 2.85, 0],
-            color="#FF0055",
-            stroke_width=6,
-            buff=0,
-            max_tip_length_to_length_ratio=0.3,
-        )
-        pert_label = Text(
-            "PERTURBACIÓN LATERAL (Δθ = 35°)",
-            font="Consolas",
-            font_size=13,
-            weight=BOLD,
-            color="#FF0055",
-        ).next_to(pert_arrow, UP, buff=0.12)
-        pert_group = VGroup(pert_arrow, pert_label)
-        set_vgroup_opacity(pert_group, 0.0)
-        self.add(pert_group)
-
-        # Emergency Shutdown Warning Banner (Phase 3)
-        shutdown_banner = RoundedRectangle(
-            width=7.8,
-            height=0.55,
-            corner_radius=0.1,
-            fill_color="#7F1D1D",
-            fill_opacity=0.9,
-            stroke_color="#EF4444",
-            stroke_width=2.0,
-        ).move_to([0.0, 1.95, 0.0])
-        shutdown_text = Text(
-            "⚠️ PARADA DE EMERGENCIA: MOTOR OFF (f = 0 Hz)",
-            font="Consolas",
-            font_size=13,
-            weight=BOLD,
-            color="#FEE2E2",
-        ).move_to([0.0, 1.95, 0.0])
-        shutdown_group = VGroup(shutdown_banner, shutdown_text)
-        set_vgroup_opacity(shutdown_group, 0.0)
-        self.add(shutdown_group)
-
-        # -------------------------------------------------------------
-        # 6. Lower Auxiliary Zone: Effective Potential Landscape
-        #    Safe Zone: y in [-5.15, -1.80]
-        # -------------------------------------------------------------
-        chart_y_center = -3.45
-        chart_bg = RoundedRectangle(
-            width=8.2,
-            height=3.30,
-            corner_radius=0.18,
-            fill_color="#0B132B",
-            fill_opacity=0.92,
-            stroke_color="#334155",
-            stroke_width=1.5,
-        ).move_to([0.0, chart_y_center, 0.0])
-
-        chart_title = Text(
-            "POZO DE ENERGÍA EFECTIVA DE LANDAU-KAPITZA",
-            font="Consolas",
-            font_size=14,
-            weight=BOLD,
-            color="#F59E0B",
-        ).move_to([0.0, chart_y_center + 1.35, 0.0])
-
-        chart_formula = Text(
-            "V_eff(Θ) = m·g·L·(1 - cos Θ) + ¼·m·a²·ω²·sin² Θ",
-            font="Consolas",
-            font_size=11,
-            color="#94A3B8",
-        ).move_to([0.0, chart_y_center + 1.05, 0.0])
-
-        self.add(chart_bg, chart_title, chart_formula)
-
-        # Potential graph mapping
-        x_min, x_max = -3.3, 3.3
-        y_min, y_max = -4.6, -2.8
-        v_scale_max = 32.0
-
-        def theta_to_x(th: float) -> float:
-            norm_th = float(th) % (2.0 * np.pi)
-            if norm_th < 1e-4 and th > 1.0:
-                norm_th = 2.0 * np.pi
-            return x_min + (x_max - x_min) * (norm_th / (2.0 * np.pi))
-
-        def v_to_y(v_val: float) -> float:
-            norm_v = np.clip(v_val / v_scale_max, 0.0, 1.0)
-            return y_min + (y_max - y_min) * norm_v
-
-        # Chart axes
-        axis_x = Line(start=[x_min, y_min, 0], end=[x_max, y_min, 0], stroke_color="#475569", stroke_width=1.5)
-        axis_y = Line(start=[x_min, y_min, 0], end=[x_min, y_max, 0], stroke_color="#475569", stroke_width=1.5)
-        mark_pi_line = DashedLine(
-            start=[0.0, y_min, 0],
-            end=[0.0, y_max, 0],
-            stroke_color="#00F2FE",
-            stroke_width=1.2,
-            dash_length=0.06,
-        )
-
-        lbl_0 = Text("0° (Abajo)", font="Consolas", font_size=10, color="#64748B").next_to([x_min, y_min, 0], DOWN, buff=0.1)
-        lbl_pi = Text("180° (Invertido)", font="Consolas", font_size=10, color="#00F2FE", weight=BOLD).next_to([0.0, y_min, 0], DOWN, buff=0.1)
-        lbl_2pi = Text("360° (Abajo)", font="Consolas", font_size=10, color="#64748B").next_to([x_max, y_min, 0], DOWN, buff=0.1)
-
-        chart_axes_group = VGroup(axis_x, axis_y, mark_pi_line, lbl_0, lbl_pi, lbl_2pi)
-        self.add(chart_axes_group)
-
-        # Dynamic Potential Curve & Fill
-        theta_grid = np.linspace(0.0, 2.0 * np.pi, 80)
-        potential_curve = VMobject(color="#00F2FE", stroke_width=3.0)
-        potential_fill = VMobject(fill_color="#00F2FE", fill_opacity=0.12, stroke_width=0)
-        self.add(potential_fill, potential_curve)
-
-        # Rolling Bead on Potential Landscape
-        bead_halo = Circle(radius=0.16, fill_color="#F59E0B", fill_opacity=0.35, stroke_width=0)
-        bead_body = Circle(radius=0.09, fill_color="#FFFFFF", fill_opacity=1.0, stroke_color="#F59E0B", stroke_width=2.0)
-        bead_tag = Text("Θ(t)", font="Consolas", font_size=10, color="#FDE047", weight=BOLD)
-        bead_assembly = VGroup(bead_halo, bead_body, bead_tag)
-        self.add(bead_assembly)
-
-        # -------------------------------------------------------------
-        # 7. Synchronous Dynamic Updaters (60 FPS Vector Graphics)
-        # -------------------------------------------------------------
-        state = {
-            "current_phase": 1,
-            "last_metrics_frame": -10,
-        }
-
-        def update_scene(dt):
-            t = time_tracker.get_value()
-            idx = get_frame_idx(t)
-
-            th = sol.theta[idx]
-            th_slow = sol.theta_slow[idx]
-            th_deg = sol.theta_deg[idx]
-            y0_val = sol.y_base[idx]
-            a_base_val = sol.a_base[idx]
-            w_inst = sol.omega_inst[idx]
-            f_inst = sol.f_inst[idx]
-            phase = sol.phase_id[idx]
-
-            # 1. Pivot carriage position (scaled by 4.0x for high visual impact)
-            y_pivot = rail_y_center + 4.0 * y0_val
-            carriage_assembly.move_to([0.0, y_pivot, 0.0])
-
-            # Stroboscopic vibration indicator
-            if f_inst > 5.0:
-                vib_indicators.set_opacity(0.85)
-                vib_indicators[0].next_to(carriage_box, LEFT, buff=0.12)
-                vib_indicators[1].next_to(carriage_box, RIGHT, buff=0.12)
-                carriage_box.set_stroke(color="#00F2FE", width=2.0)
-            else:
-                vib_indicators.set_opacity(0.0)
-                carriage_box.set_stroke(color="#EF4444", width=1.5)
-
-            # 2. Pendulum Rod & Bob (60 FPS exact physical integration)
-            bob_x = L_vis * np.sin(th)
-            bob_y = y_pivot - L_vis * np.cos(th)
-
-            rod_line.put_start_and_end_on([0.0, y_pivot, 0.0], [bob_x, bob_y, 0.0])
-            rod_shine.put_start_and_end_on([0.0, y_pivot, 0.0], [bob_x, bob_y, 0.0])
-            bob_assembly.move_to([bob_x, bob_y, 0.0])
-            ref_vertical.put_start_and_end_on([0.0, y_pivot, 0.0], [0.0, y_pivot + L_vis + 0.25, 0.0])
-
-            # 3. Phase-driven HUD and warning state transitions
-            if phase != state["current_phase"]:
-                state["current_phase"] = phase
-                if phase == 1:
-                    set_vgroup_opacity(hud_p1, 1.0)
-                    set_vgroup_opacity(hud_p2, 0.0)
-                    set_vgroup_opacity(hud_p3, 0.0)
-                    hud_status_bar.set_fill(color="#00F2FE")
-                    set_vgroup_opacity(shutdown_group, 0.0)
-                elif phase == 2:
-                    set_vgroup_opacity(hud_p1, 0.0)
-                    set_vgroup_opacity(hud_p2, 1.0)
-                    set_vgroup_opacity(hud_p3, 0.0)
-                    hud_status_bar.set_fill(color="#FF0055")
-                    set_vgroup_opacity(shutdown_group, 0.0)
-                else:  # Phase 3
-                    set_vgroup_opacity(hud_p1, 0.0)
-                    set_vgroup_opacity(hud_p2, 0.0)
-                    set_vgroup_opacity(hud_p3, 1.0)
-                    hud_status_bar.set_fill(color="#EF4444")
-                    set_vgroup_opacity(shutdown_group, 1.0)
-
-            # Lateral perturbation arrow in Phase 2
-            if phase == 2 and 4.0 <= t <= 4.75:
-                pulse_op = float(np.clip(np.sin(np.pi * (t - 4.0) / 0.75), 0.0, 1.0))
-                set_vgroup_opacity(pert_group, pulse_op)
-                pert_arrow.put_start_and_end_on([bob_x + 1.8, bob_y, 0], [bob_x + 0.35, bob_y, 0])
-                pert_label.next_to(pert_arrow, UP, buff=0.1)
-            else:
-                set_vgroup_opacity(pert_group, 0.0)
-
-            # Update numeric readout at 10 Hz rate (every 6 frames)
-            if idx - state["last_metrics_frame"] >= 6 or state["last_metrics_frame"] < 0:
-                state["last_metrics_frame"] = idx
                 r_ratio = ((phys_cfg.a * w_inst) ** 2) / (2.0 * phys_cfg.g * phys_cfg.L)
-                metrics_str = f"θ: {th_deg%360.0:5.1f}°   |   a_base: {a_base_val:+05.0f} m/s²   |   Margen R: {r_ratio:4.2f}"
-                new_m = Text(metrics_str, font="Consolas", font_size=12, color="#94A3B8").move_to([0.0, 3.45, 0.0])
-                metrics_container.submobjects = [new_m]
 
-            # 4. Update Lower Auxiliary Potential Landscape (Vector morphing)
-            v_vals = compute_effective_potential(theta_grid, w_inst, phys_cfg)
-            points = [
-                [x_min + (x_max - x_min) * (tg / (2.0 * np.pi)), v_to_y(vg), 0.0]
-                for tg, vg in zip(theta_grid, v_vals)
-            ]
-            potential_curve.set_points_smoothly(points)
-            if phase == 3:
-                potential_curve.set_color("#F59E0B")
-            else:
-                potential_curve.set_color("#00F2FE")
+                if lang == "ES":
+                    if phase == 1:
+                        l1 = f"CONDICIÓN KAPITZA : (a·ω)² > 2·g·L  [CUMPLIDA • R = {r_ratio:4.2f}x]"
+                        l2 = f"MOTOR EXCITACIÓN  : f = {f_inst:.1f} Hz (ALTA VELOCIDAD | 486 g)"
+                        l3 = "ESTADO DINÁMICO   : EQUILIBRIO INVERTIDO ASINTÓTICO (180°)"
+                    elif phase == 2:
+                        l1 = f"CONDICIÓN KAPITZA : (a·ω)² > 2·g·L  [RECUPERACIÓN ACTIVA • R = {r_ratio:4.2f}x]"
+                        l2 = f"MOTOR EXCITACIÓN  : f = {f_inst:.1f} Hz (ALTA VELOCIDAD | 486 g)"
+                        l3 = "ESTADO DINÁMICO   : PERTURBACIÓN EXTERNA RESUELTA (Δθ = 35°)"
+                    else:
+                        l1 = "CONDICIÓN KAPITZA : (a·ω)² > 2·g·L  [ANULADA • R = 0.00x]"
+                        l2 = "MOTOR EXCITACIÓN  : f = 0.0 Hz (MOTOR APAGADO)"
+                        l3 = "ESTADO DINÁMICO   : COLAPSO GRAVITATORIO NO LINEAL"
+                    metric_str = f"θ: {th_deg%360.0:5.1f}°  |  V_eff: {v_eff_val:4.1f} J  |  a_base: {a_base_val:+05.0f} m/s²"
+                else:
+                    if phase == 1:
+                        l1 = f"KAPITZA CONDITION : (a·ω)² > 2·g·L  [SATISFIED • R = {r_ratio:4.2f}x]"
+                        l2 = f"EXCITATION MOTOR  : f = {f_inst:.1f} Hz (HIGH SPEED | 486 g)"
+                        l3 = "DYNAMIC STATE     : ASYMPTOTICALLY STABLE INVERTED (180°)"
+                    elif phase == 2:
+                        l1 = f"KAPITZA CONDITION : (a·ω)² > 2·g·L  [ACTIVE RESTORATION • R = {r_ratio:4.2f}x]"
+                        l2 = f"EXCITATION MOTOR  : f = {f_inst:.1f} Hz (HIGH SPEED | 486 g)"
+                        l3 = "DYNAMIC STATE     : EXTERNAL IMPACT RESOLVED (Δθ = 35°)"
+                    else:
+                        l1 = "KAPITZA CONDITION : (a·ω)² > 2·g·L  [VIOLATED • R = 0.00x]"
+                        l2 = "EXCITATION MOTOR  : f = 0.0 Hz (MOTOR SHUTDOWN)"
+                        l3 = "DYNAMIC STATE     : NONLINEAR GRAVITATIONAL COLLAPSE"
+                    metric_str = f"θ: {th_deg%360.0:5.1f}°  |  V_eff: {v_eff_val:4.1f} J  |  a_base: {a_base_val:+05.0f} m/s²"
 
-            fill_pts = points + [[x_max, y_min, 0.0], [x_min, y_min, 0.0]]
-            potential_fill.set_points_as_corners(fill_pts)
+                t1 = Text(l1, font="Consolas", font_size=11, color=status_col, weight=BOLD).move_to([-3.75, 5.38, 0], aligned_edge=LEFT)
+                t2 = Text(l2, font="Consolas", font_size=10.5, color="#F1F5F9").move_to([-3.75, 5.12, 0], aligned_edge=LEFT)
+                t3 = Text(l3, font="Consolas", font_size=10.5, color="#10B981" if phase <= 2 else "#EF4444").move_to([-3.75, 4.86, 0], aligned_edge=LEFT)
+                t4 = Text(metric_str, font="Consolas", font_size=10, color="#94A3B8").move_to([-3.75, 4.58, 0], aligned_edge=LEFT)
 
-            # 5. Update Rolling Bead on Potential Landscape
-            v_bead = compute_effective_potential(np.array([th_slow]), w_inst, phys_cfg)[0]
-            bx = theta_to_x(th_slow)
-            by = v_to_y(v_bead)
-            bead_halo.move_to([bx, by, 0.0])
-            bead_body.move_to([bx, by, 0.0])
-            bead_tag.next_to(bead_body, UP, buff=0.08)
+                return VGroup(hud_bg, status_bar, t1, t2, t3, t4)
 
-        # Updaters
-        self.add_updater(update_scene)
-        update_scene(0.0)
+            self.add(dynamic_telemetry_hud)
 
-        # Execution mode: snapshot vs full video render
-        if getattr(self, "is_snapshot", False):
-            self.wait(0.02)
-        else:
-            self.play(
-                time_tracker.animate.set_value(phys_cfg.t_total),
-                run_time=phys_cfg.t_total,
-                rate_func=linear,
+            # -------------------------------------------------------------
+            # 4. Central Mechanical Apparatus: Horizontal Bench & Drive
+            # -------------------------------------------------------------
+            # The user explicitly requested:
+            # "quisiera que la guía en donde está girando la parte que vibra,
+            #  donde está vibrando el péndulo esté de manera horizontal y no vertical"
+            # Here we render a realistic, heavy precision HORIZONTAL guide bench.
+            bench_y = -0.70
+
+            # Horizontal structural guide bench
+            bench_beam = RoundedRectangle(
+                width=7.8,
+                height=0.40,
+                corner_radius=0.08,
+                fill_color="#0F172A",
+                fill_opacity=0.95,
+                stroke_color="#334155",
+                stroke_width=1.6,
+            ).move_to([0.0, bench_y, 0.0])
+
+            # Dual precision chrome guide rails
+            chrome_rail_top = Line(start=[-3.7, bench_y + 0.10, 0], end=[3.7, bench_y + 0.10, 0], stroke_color="#94A3B8", stroke_width=2.5)
+            chrome_rail_bot = Line(start=[-3.7, bench_y - 0.10, 0], end=[3.7, bench_y - 0.10, 0], stroke_color="#475569", stroke_width=2.5)
+
+            # Measurement scale ticks along the horizontal bench
+            bench_ticks = VGroup()
+            for xt in np.linspace(-3.5, 3.5, 29):
+                h_tick = 0.08 if int(abs(xt * 2)) % 2 == 0 else 0.04
+                bench_ticks.add(
+                    Line(
+                        start=[xt, bench_y + 0.20, 0],
+                        end=[xt, bench_y + 0.20 - h_tick, 0],
+                        stroke_color="#64748B",
+                        stroke_width=1.0,
+                    )
+                )
+
+            # End pillow blocks with mounting bolts & rubber bumpers
+            pillow_l = RoundedRectangle(width=0.35, height=0.55, corner_radius=0.06, fill_color="#1E293B", fill_opacity=1.0, stroke_color="#475569", stroke_width=1.5).move_to([-3.75, bench_y, 0])
+            pillow_r = RoundedRectangle(width=0.35, height=0.55, corner_radius=0.06, fill_color="#1E293B", fill_opacity=1.0, stroke_color="#475569", stroke_width=1.5).move_to([3.75, bench_y, 0])
+            bumper_l = Circle(radius=0.08, fill_color="#EF4444", fill_opacity=0.8, stroke_width=0).move_to([-3.50, bench_y, 0])
+            bumper_r = Circle(radius=0.08, fill_color="#EF4444", fill_opacity=0.8, stroke_width=0).move_to([3.50, bench_y, 0])
+
+            bench_label_str = "BANCADA / GUÍA LINEAL HORIZONTAL" if lang == "ES" else "HORIZONTAL LINEAR GUIDE BENCH"
+            bench_label = Text(
+                bench_label_str,
+                font="Consolas",
+                font_size=9,
+                color="#64748B",
+                weight=BOLD,
+            ).move_to([0.0, bench_y - 0.44, 0])
+
+            # Educational Note Badge: Explains that the bench/guide is horizontal,
+            # while the restoring vibration is vertical (Kapitza condition).
+            note_str = "BANCADA HORIZONTAL • VIBRACIÓN VERTICAL RESTAURADORA (KAPITZA)" if lang == "ES" else "HORIZONTAL BENCH • RESTORING VERTICAL VIBRATION (KAPITZA)"
+            note_badge = Text(
+                note_str,
+                font="Consolas",
+                font_size=8.5,
+                color="#38BDF8",
+            ).move_to([0.0, bench_y - 0.68, 0])
+
+            self.add(VGroup(
+                bench_beam, chrome_rail_top, chrome_rail_bot, bench_ticks,
+                pillow_l, pillow_r, bumper_l, bumper_r,
+                bench_label, note_badge
+            ))
+
+            # -------------------------------------------------------------
+            # 5. Dynamic Mechanical Drive & Pendulum System (@always_redraw)
+            # -------------------------------------------------------------
+            L_vis = 2.05
+
+            @always_redraw
+            def dynamic_mechanical_system():
+                t = time_tracker.get_value()
+                idx = get_frame_idx(t)
+
+                th = sol.theta[idx]
+                y0_val = sol.y_base[idx]
+                f_inst = sol.f_inst[idx]
+                phase = sol.phase_id[idx]
+
+                grp = VGroup()
+
+                # Pivot position: Carriage is on horizontal bench at y = bench_y,
+                # with high-frequency vertical vibration of the pivot pin inside the carriage:
+                # y0_val is in [-0.04, 0.04], amplified visually by 6.0x for clear perception
+                y_pivot = (bench_y + 0.28) + 6.0 * y0_val
+
+                is_vibrating = f_inst > 5.0
+                c_stroke = "#00F2FE" if is_vibrating else "#EF4444"
+                c_fill = "#1E293B" if is_vibrating else "#18181B"
+
+                # 5.1 Motor Unit & Rotating Crank Wheel ("la parte que gira")
+                # Positioned on the left side of the carriage:
+                motor_x = -1.45
+                motor_box = RoundedRectangle(
+                    width=0.95,
+                    height=0.68,
+                    corner_radius=0.08,
+                    fill_color="#0F172A",
+                    fill_opacity=1.0,
+                    stroke_color="#0284C7" if is_vibrating else "#64748B",
+                    stroke_width=1.8,
+                ).move_to([motor_x, bench_y + 0.05, 0.0])
+
+                # Rotating Flywheel / Disc driven by the motor
+                rotor_angle = (2.0 * np.pi * 55.0 * t) if is_vibrating else 0.0
+                disc = Circle(
+                    radius=0.28,
+                    fill_color="#1E293B",
+                    fill_opacity=1.0,
+                    stroke_color=c_stroke,
+                    stroke_width=1.8,
+                ).move_to([motor_x, bench_y + 0.05, 0.0])
+
+                # Rotating spokes and eccentric drive pin
+                spoke_1 = Line(
+                    start=[motor_x - 0.24 * np.cos(rotor_angle), bench_y + 0.05 - 0.24 * np.sin(rotor_angle), 0],
+                    end=[motor_x + 0.24 * np.cos(rotor_angle), bench_y + 0.05 + 0.24 * np.sin(rotor_angle), 0],
+                    stroke_color="#94A3B8",
+                    stroke_width=1.5,
+                )
+                spoke_2 = Line(
+                    start=[motor_x - 0.24 * np.sin(rotor_angle), bench_y + 0.05 + 0.24 * np.cos(rotor_angle), 0],
+                    end=[motor_x + 0.24 * np.sin(rotor_angle), bench_y + 0.05 - 0.24 * np.cos(rotor_angle), 0],
+                    stroke_color="#94A3B8",
+                    stroke_width=1.5,
+                )
+                crank_pin_x = motor_x + 0.16 * np.cos(rotor_angle)
+                crank_pin_y = bench_y + 0.05 + 0.16 * np.sin(rotor_angle)
+                crank_pin = Circle(
+                    radius=0.05,
+                    fill_color="#F59E0B" if is_vibrating else "#64748B",
+                    fill_opacity=1.0,
+                    stroke_width=0,
+                ).move_to([crank_pin_x, crank_pin_y, 0])
+
+                motor_tag = Text(
+                    "MOTOR 55 Hz" if is_vibrating else "OFF (0 Hz)",
+                    font="Consolas",
+                    font_size=8,
+                    color="#38BDF8" if is_vibrating else "#EF4444",
+                    weight=BOLD,
+                ).next_to(motor_box, UP, buff=0.08)
+
+                # Connecting link / yoke from rotating eccentric to carriage
+                link_arm = Line(
+                    start=[crank_pin_x, crank_pin_y, 0],
+                    end=[-0.70, y_pivot, 0],
+                    stroke_color="#64748B",
+                    stroke_width=2.0,
+                )
+
+                grp.add(motor_box, disc, spoke_1, spoke_2, crank_pin, motor_tag, link_arm)
+
+                # 5.2 Carriage Assembly riding on the horizontal bench
+                carriage_box = RoundedRectangle(
+                    width=1.45,
+                    height=0.62,
+                    corner_radius=0.10,
+                    fill_color=c_fill,
+                    fill_opacity=1.0,
+                    stroke_color=c_stroke,
+                    stroke_width=2.2,
+                ).move_to([0.0, bench_y + 0.05, 0.0])
+
+                # Internal precision vertical slot inside carriage
+                slot_bg = RoundedRectangle(
+                    width=0.22,
+                    height=0.50,
+                    corner_radius=0.06,
+                    fill_color="#0F172A",
+                    fill_opacity=1.0,
+                    stroke_color="#475569",
+                    stroke_width=1.2,
+                ).move_to([0.0, bench_y + 0.05, 0.0])
+
+                # Bearing Pin at vibrating pivot
+                bearing_pin = Circle(
+                    radius=0.10,
+                    fill_color="#F59E0B",
+                    fill_opacity=1.0,
+                    stroke_color="#FFFFFF",
+                    stroke_width=1.6,
+                ).move_to([0.0, y_pivot, 0.0])
+
+                grp.add(carriage_box, slot_bg, bearing_pin)
+
+                # Vibration blur echoes & frequency indicator when buzzing at 55 Hz
+                if is_vibrating:
+                    echo_top = bearing_pin.copy().shift(UP * 0.10).set_opacity(0.35).set_stroke(color="#00F2FE", width=1.0)
+                    echo_bot = bearing_pin.copy().shift(DOWN * 0.10).set_opacity(0.35).set_stroke(color="#00F2FE", width=1.0)
+                    vib_pill = RoundedRectangle(
+                        width=1.95,
+                        height=0.32,
+                        corner_radius=0.08,
+                        fill_color="#0F172A",
+                        fill_opacity=0.90,
+                        stroke_color="#00F2FE",
+                        stroke_width=1.0,
+                    ).next_to(carriage_box, RIGHT, buff=0.18)
+                    vib_txt = Text("↕ 55 Hz (486 g)", font="Consolas", font_size=8.5, color="#00F2FE", weight=BOLD).move_to(vib_pill.get_center())
+                    grp.add(echo_top, echo_bot, vib_pill, vib_txt)
+
+                # 5.3 Pendulum Rod and Bob (Angle convention: theta = pi is straight UP)
+                bob_x = L_vis * np.sin(th)
+                bob_y = y_pivot - L_vis * np.cos(th)
+
+                # Vertical reference dashed axis (upright vertical at 180 deg)
+                ref_line = DashedLine(
+                    start=[0.0, y_pivot, 0.0],
+                    end=[0.0, y_pivot + L_vis + 0.35, 0.0],
+                    stroke_color="#475569",
+                    stroke_width=1.2,
+                    dash_length=0.08,
+                )
+
+                # Dual-layer rigid rod (silver core + slate body)
+                rod_body = Line(
+                    start=[0.0, y_pivot, 0.0],
+                    end=[bob_x, bob_y, 0.0],
+                    stroke_color="#94A3B8",
+                    stroke_width=5.5,
+                )
+                rod_shine = Line(
+                    start=[0.0, y_pivot, 0.0],
+                    end=[bob_x, bob_y, 0.0],
+                    stroke_color="#FFFFFF",
+                    stroke_width=1.8,
+                )
+
+                # Heavy inertial tungsten/brass bob
+                bob_halo = Circle(
+                    radius=0.38,
+                    fill_color="#00F2FE" if is_vibrating else "#EF4444",
+                    fill_opacity=0.30,
+                    stroke_width=0,
+                ).move_to([bob_x, bob_y, 0.0])
+
+                bob_body = Circle(
+                    radius=0.25,
+                    fill_color="#0284C7" if is_vibrating else "#991B1B",
+                    fill_opacity=1.0,
+                    stroke_color="#38BDF8" if is_vibrating else "#F87171",
+                    stroke_width=2.5,
+                ).move_to([bob_x, bob_y, 0.0])
+
+                bob_core = Circle(
+                    radius=0.08,
+                    fill_color="#FFFFFF",
+                    fill_opacity=1.0,
+                    stroke_width=0,
+                ).move_to([bob_x, bob_y, 0.0])
+
+                grp.add(ref_line, rod_body, rod_shine, bob_halo, bob_body, bob_core)
+                return grp
+
+            self.add(dynamic_mechanical_system)
+
+            # -------------------------------------------------------------
+            # 6. Dynamic Alert Banners: Perturbation & Emergency Shutdown
+            # -------------------------------------------------------------
+            @always_redraw
+            def dynamic_alert_banners():
+                t = time_tracker.get_value()
+                grp = VGroup()
+
+                # Phase 2: Lateral perturbation pulse (t = 4.0 to 4.8s)
+                if 4.0 <= t <= 4.8:
+                    idx = get_frame_idx(t)
+                    th = sol.theta[idx]
+                    y_piv = (bench_y + 0.28) + 6.0 * sol.y_base[idx]
+                    bx = L_vis * np.sin(th)
+                    by = y_piv - L_vis * np.cos(th)
+
+                    p_arrow = Arrow(
+                        start=[bx + 2.0, by, 0],
+                        end=[bx + 0.45, by, 0],
+                        color="#EC4899",
+                        stroke_width=5.5,
+                        buff=0,
+                        max_tip_length_to_length_ratio=0.28,
+                    )
+                    p_txt_str = "¡PERTURBACIÓN EXTERNA! (Δθ = 35°)" if lang == "ES" else "EXTERNAL DISTURBANCE! (Δθ = 35°)"
+                    p_label = Text(
+                        p_txt_str,
+                        font="Consolas",
+                        font_size=11,
+                        weight=BOLD,
+                        color="#EC4899",
+                    ).next_to(p_arrow, UP, buff=0.10)
+                    grp.add(p_arrow, p_label)
+
+                # Phase 3: Emergency shutdown warning banner (t >= 8.0s)
+                if t >= 8.0:
+                    blink = (int(t * 5.0) % 2 == 0)
+                    s_bg = RoundedRectangle(
+                        width=8.3,
+                        height=0.55,
+                        corner_radius=0.10,
+                        fill_color="#7F1D1D" if blink else "#450A0A",
+                        fill_opacity=0.95,
+                        stroke_color="#EF4444",
+                        stroke_width=2.0,
+                    ).move_to([0.0, 2.05, 0.0])
+
+                    s_text_str = "⚠️ MOTOR APAGADO (f = 0 Hz) • PÉRDIDA DE ESTABILIDAD INVERTIDA" if lang == "ES" else "⚠️ MOTOR OFF (f = 0 Hz) • INVERTED STABILITY DESTROYED"
+                    s_txt = Text(
+                        s_text_str,
+                        font="Consolas",
+                        font_size=11,
+                        weight=BOLD,
+                        color="#FFFFFF" if blink else "#FCA5A5",
+                    ).move_to([0.0, 2.05, 0.0])
+                    grp.add(s_bg, s_txt)
+
+                return grp
+
+            self.add(dynamic_alert_banners)
+
+            # -------------------------------------------------------------
+            # 7. Landau-Kapitza Effective Potential Well Landscape
+            #    Safe Zone: Y in [-6.90, -2.55]
+            # -------------------------------------------------------------
+            chart_y_center = -4.70
+            chart_bg = RoundedRectangle(
+                width=8.3,
+                height=4.15,
+                corner_radius=0.16,
+                fill_color="#070E20",
+                fill_opacity=0.94,
+                stroke_color="#334155",
+                stroke_width=1.5,
+            ).move_to([0.0, chart_y_center, 0.0])
+
+            c_title_str = "POZO DE ENERGÍA EFECTIVA DE LANDAU-KAPITZA" if lang == "ES" else "LANDAU-KAPITZA EFFECTIVE POTENTIAL WELL"
+            chart_title = Text(
+                c_title_str,
+                font="Consolas",
+                font_size=12.5,
+                weight=BOLD,
+                color="#F59E0B",
+            ).move_to([0.0, chart_y_center + 1.75, 0.0])
+
+            chart_formula = Text(
+                "V_eff(θ) = m·g·L·(1 - cos θ) + ¼·m·a²·ω²·sin² θ",
+                font="Consolas",
+                font_size=10.5,
+                color="#94A3B8",
+            ).move_to([0.0, chart_y_center + 1.45, 0.0])
+
+            self.add(chart_bg, chart_title, chart_formula)
+
+            x_min, x_max = -3.4, 3.4
+            y_min, y_max = chart_y_center - 1.50, chart_y_center + 1.05
+            v_scale_max = 32.0
+
+            def theta_to_x(th: float) -> float:
+                norm_th = float(th) % (2.0 * np.pi)
+                if norm_th < 1e-4 and th > 1.0:
+                    norm_th = 2.0 * np.pi
+                return x_min + (x_max - x_min) * (norm_th / (2.0 * np.pi))
+
+            def v_to_y(v_val: float) -> float:
+                norm_v = np.clip(v_val / v_scale_max, 0.0, 1.0)
+                return y_min + (y_max - y_min) * norm_v
+
+            # Static Axis elements
+            axis_x = Line(start=[x_min, y_min, 0], end=[x_max, y_min, 0], stroke_color="#475569", stroke_width=1.5)
+            axis_y = Line(start=[x_min, y_min, 0], end=[x_min, y_max, 0], stroke_color="#475569", stroke_width=1.5)
+            mark_pi_line = DashedLine(
+                start=[0.0, y_min, 0],
+                end=[0.0, y_max, 0],
+                stroke_color="#00F2FE",
+                stroke_width=1.2,
+                dash_length=0.06,
             )
 
+            t_0 = "0° (Colgado)" if lang == "ES" else "0° (Hanging)"
+            t_pi = "180° (Invertido)" if lang == "ES" else "180° (Inverted)"
+            t_2pi = "360° (Colgado)" if lang == "ES" else "360° (Hanging)"
 
-class KapitzaPhase1Snapshot(KapitzaPendulumScene):
-    """Renders a snapshot of Phase 1: High frequency stable upright inversion (t=2.0s)."""
+            lbl_0 = Text(t_0, font="Consolas", font_size=9.5, color="#64748B").next_to([x_min, y_min, 0], DOWN, buff=0.10)
+            lbl_pi = Text(t_pi, font="Consolas", font_size=9.5, color="#00F2FE", weight=BOLD).next_to([0.0, y_min, 0], DOWN, buff=0.10)
+            lbl_2pi = Text(t_2pi, font="Consolas", font_size=9.5, color="#64748B").next_to([x_max, y_min, 0], DOWN, buff=0.10)
+
+            self.add(VGroup(axis_x, axis_y, mark_pi_line, lbl_0, lbl_pi, lbl_2pi))
+
+            theta_grid = np.linspace(0.0, 2.0 * np.pi, 90)
+
+            @always_redraw
+            def dynamic_potential_well():
+                t = time_tracker.get_value()
+                idx = get_frame_idx(t)
+                w_inst = sol.omega_inst[idx]
+                th_slow = sol.theta_slow[idx]
+                phase = sol.phase_id[idx]
+
+                v_vals = compute_effective_potential(theta_grid, w_inst, phys_cfg)
+                points = [
+                    [x_min + (x_max - x_min) * (tg / (2.0 * np.pi)), v_to_y(vg), 0.0]
+                    for tg, vg in zip(theta_grid, v_vals)
+                ]
+
+                p_curve = VMobject(color="#F59E0B" if phase == 3 else "#00F2FE", stroke_width=3.2)
+                p_curve.set_points_smoothly(points)
+
+                fill_pts = points + [[x_max, y_min, 0.0], [x_min, y_min, 0.0]]
+                p_fill = VMobject(fill_color="#F59E0B" if phase == 3 else "#00F2FE", fill_opacity=0.15, stroke_width=0)
+                p_fill.set_points_as_corners(fill_pts)
+
+                # Rolling bead indicating slow macro-angle Theta(t)
+                v_bead = compute_effective_potential(np.array([th_slow]), w_inst, phys_cfg)[0]
+                bx = theta_to_x(th_slow)
+                by = v_to_y(v_bead)
+
+                bead_halo = Circle(radius=0.16, fill_color="#F59E0B", fill_opacity=0.35, stroke_width=0).move_to([bx, by, 0.0])
+                bead_body = Circle(radius=0.09, fill_color="#FFFFFF", fill_opacity=1.0, stroke_color="#F59E0B", stroke_width=2.0).move_to([bx, by, 0.0])
+                bead_tag = Text(f"θ={np.degrees(th_slow)%360.0:.0f}°", font="Consolas", font_size=9, color="#FDE047", weight=BOLD).next_to(bead_body, UP, buff=0.06)
+
+                return VGroup(p_fill, p_curve, bead_halo, bead_body, bead_tag)
+
+            self.add(dynamic_potential_well)
+
+            # -------------------------------------------------------------
+            # 8. Animation Execution: 15.0 Seconds @ 60 FPS
+            # -------------------------------------------------------------
+            if getattr(self, "is_snapshot", False):
+                time_tracker.set_value(self.initial_time)
+                self.wait(0.02)
+            else:
+                self.play(
+                    time_tracker.animate.set_value(phys_cfg.t_total),
+                    run_time=phys_cfg.t_total,
+                    rate_func=linear,
+                )
+
+    return LocalizedKapitzaScene
+
+
+class KapitzaPendulumSceneES(create_kapitza_scene_class(lang="ES")):
+    pass
+
+
+class KapitzaPendulumSceneEN(create_kapitza_scene_class(lang="EN")):
+    pass
+
+
+class KapitzaPhase1SnapshotEN(KapitzaPendulumSceneEN):
     is_snapshot = True
     initial_time = 2.0
 
 
-class KapitzaPhase2Snapshot(KapitzaPendulumScene):
-    """Renders a snapshot of Phase 2: Lateral perturbation of 35 deg with external force arrow (t=4.25s)."""
+# Backward compatibility alias
+class KapitzaPendulumScene(KapitzaPendulumSceneES):
+    pass
+
+
+class KapitzaPhase1Snapshot(KapitzaPendulumSceneES):
+    is_snapshot = True
+    initial_time = 2.0
+
+
+class KapitzaPhase2Snapshot(KapitzaPendulumSceneES):
     is_snapshot = True
     initial_time = 4.25
 
 
-class KapitzaPhase3Snapshot(KapitzaPendulumScene):
-    """Renders a snapshot of Phase 3: Vibration shutdown, collapsed potential, and violent plunge (t=9.2s)."""
+class KapitzaPhase3Snapshot(KapitzaPendulumSceneES):
     is_snapshot = True
     initial_time = 9.2
-
-
-if __name__ == "__main__":
-    import subprocess
-    cmd = [
-        "manim",
-        "-pqh",
-        str(Path(__file__).resolve()),
-        "KapitzaPendulumScene",
-    ]
-    subprocess.run(cmd)
