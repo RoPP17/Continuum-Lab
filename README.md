@@ -37,15 +37,21 @@ Continuum Lab/
 │   └── 01 LBM D2Q9 Karman Vortex/           # LBM D2Q9 shedding, moving cylinder & reactive audio
 ├── 02 Dinamica y Vibraciones/               # Non-linear dynamics, chaos & multi-body mechanics
 │   └── 01 Pendulo Triple Caotico/           # 6-DOF Lagrangian integrator & FM reactive synthesis
+├── 04 Termodinamica y Calor/                # Thermodynamics, conduction, heat diffusion & entropy
+│   └── 01 Ley Cero de la Termodinamica 3 Cuerpos/ # Multi-material 3-body conduction, Zeroth law proof
 ├── 06 Matematicas y Geometria/              # Pure & applied mathematics, geometry, complex analysis
 │   ├── 01 Series de Fourier Geometricas/    # Complex epicycle decomposition (Circle, Star, Octagon)
 │   └── 02 Identidad de Euler 3D/            # Helix on complex cylinder, Taylor convergence & projections
+├── CARRUSELES/                              # High-impact educational carousels (4:5 format for IG / TikTok)
+│   ├── 1 Dinamica Analitica y Mecanica Lagrangiana/
+│   └── 2 Ecuacion de Navier Stokes/
 ├── RENDERS/                                 # Numerical benchmarks & high-resolution captures
 │   ├── 1 Vortices de von Karman/extra/      # Dynamic Excel models (.xlsx), telemetry & screenshots
 │   ├── 2 Pendulo Triple Trayectoria Caotica/extra/
 │   ├── 3 Series de Fourier Geometricas/extra/
-│   └── 4 Identidad de Euler 3D/extra/
-├── run_tests.py                             # Global verification test runner (20/20 passing)
+│   ├── 4 Identidad de Euler 3D/extra/
+│   └── 14 Ley Cero Termodinamica 3 Cuerpos/ # 1080x1920 covers, dynamic Excel benchmark & GIF preview
+├── run_tests.py                             # Global verification test runner (all tests green)
 └── README.md                                # Master documentation
 ```
 
@@ -68,6 +74,10 @@ Continuum Lab/
 ### 4. [Complex Analysis: 3D Euler Identity](06%20Matematicas%20y%20Geometria/02%20Identidad%20de%20Euler%203D)
 - **Physics:** $e^{i\theta} = \cos\theta + i\sin\theta$, $e^{i\pi} + 1 = 0$, helical geometry in $\mathbb{R} \times \mathbb{C}$.
 - **Features:** 3D rotational camera views, orthogonal Euclidean projections, Taylor series convergence comparison, and reactive audio pitch modulation.
+
+### 5. [Thermodynamics: Zeroth Law & Multi-Material Heat Diffusion](04%20Termodinamica%20y%20Calor/01%20Ley%20Cero%20de%20la%20Termodinamica%203%20Cuerpos)
+- **Physics:** 2D finite-volume Fourier heat equation $\rho c_p \frac{\partial T}{\partial t} = \nabla \cdot (k \nabla T)$ across 3 contiguous solids: Copper ($100^\circ\text{C}$), Stainless Steel ($25^\circ\text{C}$), and Aluminum ($0^\circ\text{C}$). Conservative harmonic interface conductividades $k_{int} = \frac{2 k_1 k_2}{k_1 + k_2}$.
+- **Features:** Closed-form First Law benchmark ($T_{eq} = 46.2^\circ\text{C}$), dynamic heat flux arrows ($\mathbf{q} = -k\nabla T$), kinetic phonon streamlets, exact energy conservation ($\Delta E/E_0 < 10^{-5}$), and synchronized 84 BPM cinematic ambient science soundtrack with equilibrium resolution chime.
 
 ---
 

@@ -29,10 +29,10 @@ RENDERS/**/videos/
 
 render_gyroscope.py
 test_frame_*.png
-
-
-
-
+render_frame_*.png
+frame_check_*.png
+*temp_cache*/
+manim_cache*/
 
 # CRITICAL PRIVACY & INFRASTRUCTURE EXCLUSIONS (Local Only - Never in GitHub)
 Skills e Instrucciones/
