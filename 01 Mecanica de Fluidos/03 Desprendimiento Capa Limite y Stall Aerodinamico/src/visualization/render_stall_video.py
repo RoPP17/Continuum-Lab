@@ -63,28 +63,40 @@ def create_stall_scene(lang: str = "ES"):
                 fill_opacity=0.96
             ).move_to(UP * 5.60)
 
-            eq_top_1 = MathTex(
-                r"\left.\frac{\partial u}{\partial y}\right|_{\mathrm{wall}} = 0 \quad \Big| \quad C_L = 2\pi\alpha \quad (\text{Thin Airfoil Theory})",
-                font_size=17,
-                color="#ffffff"
-            ).move_to(UP * 6.32)
+            title_txt = "¿POR QUÉ SE CAE UN AVIÓN?" if lang == "ES" else "WHY DO AIRPLANES STALL?"
+            top_title = Text(
+                title_txt,
+                font="Segoe UI",
+                weight=BOLD,
+                font_size=18,
+                color="#00f0ff"
+            ).move_to(UP * 6.42)
 
-            rule_top_1 = Line(LEFT * 3.5, RIGHT * 3.5, color="#1f2937", stroke_width=0.9).move_to(UP * 5.92)
+            sub_txt = "STALL AERODINÁMICO | Desprendimiento de la Capa Límite" if lang == "ES" else "AERODYNAMIC STALL | Boundary Layer Separation"
+            top_sub = Text(
+                sub_txt,
+                font="Segoe UI",
+                weight=SEMIBOLD,
+                font_size=10.5,
+                color="#e2e8f0"
+            ).move_to(UP * 6.06)
+
+            rule_top_1 = Line(LEFT * 3.5, RIGHT * 3.5, color="#1f2937", stroke_width=0.9).move_to(UP * 5.76)
 
             if lang == "ES":
-                sub_top = MathTex(
-                    r"\frac{\partial p}{\partial x} > 0 \quad (\text{Gradiente Adverso}) \implies \tau_w \to 0 \quad [\text{Desprendimiento}]",
-                    font_size=16,
-                    color="#00f0ff"
-                ).move_to(UP * 5.52)
+                eq_top = MathTex(
+                    r"\left.\frac{\partial u}{\partial y}\right|_{\mathrm{wall}} \le 0 \implies \tau_w \le 0 \quad [\text{Colapso de Sustentaci\'on } C_L]",
+                    font_size=14.5,
+                    color="#ffaa00"
+                ).move_to(UP * 5.40)
             else:
-                sub_top = MathTex(
-                    r"\frac{\partial p}{\partial x} > 0 \quad (\text{Adverse Gradient}) \implies \tau_w \to 0 \quad [\text{Boundary Separation}]",
-                    font_size=16,
-                    color="#00f0ff"
-                ).move_to(UP * 5.52)
+                eq_top = MathTex(
+                    r"\left.\frac{\partial u}{\partial y}\right|_{\mathrm{wall}} \le 0 \implies \tau_w \le 0 \quad [\text{Lift Collapse } C_L]",
+                    font_size=14.5,
+                    color="#ffaa00"
+                ).move_to(UP * 5.40)
 
-            rule_top_2 = Line(LEFT * 3.5, RIGHT * 3.5, color="#1f2937", stroke_width=0.9).move_to(UP * 5.12)
+            rule_top_2 = Line(LEFT * 3.5, RIGHT * 3.5, color="#1f2937", stroke_width=0.9).move_to(UP * 5.04)
 
             def get_live_str():
                 a = alpha_tracker.get_value()
@@ -92,32 +104,30 @@ def create_stall_scene(lang: str = "ES"):
                 cd = sim.drag_coefficient(a)
                 x_sep = sim.separation_point(a)
                 if lang == "ES":
-                    state_str = "ADHERIDO (CRUCERO)" if a <= 8.0 else ("SEPARACIÓN INCIPIENTE" if a <= 15.5 else "¡STALL CRASH! (-74%)")
+                    state_str = "CRUCERO ADHERIDO" if a <= 8.0 else ("DESPRENDIMIENTO INCIPIENTE" if a <= 15.5 else "¡STALL CRASH! (-74%)")
                     return (
                         f"α = {a:4.1f}°   "
                         f"C_L = {cl:4.2f}   "
                         f"C_D = {cd:4.3f}   "
-                        f"x_sep/c = {x_sep:4.2f}   "
                         f"[{state_str}]"
                     )
                 else:
-                    state_str = "ATTACHED (CRUISE)" if a <= 8.0 else ("SEPARATION ONSET" if a <= 15.5 else "STALL CRASH! (-74%)")
+                    state_str = "ATTACHED CRUISE" if a <= 8.0 else ("SEPARATION ONSET" if a <= 15.5 else "STALL CRASH! (-74%)")
                     return (
                         f"α = {a:4.1f}°   "
                         f"C_L = {cl:4.2f}   "
                         f"C_D = {cd:4.3f}   "
-                        f"x_sep/c = {x_sep:4.2f}   "
                         f"[{state_str}]"
                     )
 
             live_text = always_redraw(lambda: Text(
                 get_live_str(),
                 font="Segoe UI",
-                font_size=12,
+                font_size=11.5,
                 color="#39ff14" if alpha_tracker.get_value() <= 12.0 else ("#ffaa00" if alpha_tracker.get_value() <= 15.5 else "#ff0055")
-            ).move_to(UP * 4.72))
+            ).move_to(UP * 4.68))
 
-            top_group = VGroup(top_box, eq_top_1, rule_top_1, sub_top, rule_top_2, live_text)
+            top_group = VGroup(top_box, top_title, top_sub, rule_top_1, eq_top, rule_top_2, live_text)
             self.add(top_group)
 
             # -----------------------------------------------------------------
@@ -222,21 +232,22 @@ def create_stall_scene(lang: str = "ES"):
                 cl = sim.lift_coefficient(a)
                 cd = sim.drag_coefficient(a)
 
-                # Lift vector: perpendicular to freestream (UP * cl * 1.5)
-                lift_vec_len = max(cl * 1.45, 0.20)
+                # Lift vector: perpendicular to freestream (UP * cl * 0.85)
+                lift_vec_len = max(cl * 0.85, 0.20)
                 lift_end = qc_center + UP * lift_vec_len
                 lift_arrow = Arrow(
                     start=qc_center, end=lift_end,
                     buff=0, color="#00f0ff" if a <= 15.5 else "#ff0055",
-                    stroke_width=4.0, max_tip_length_to_length_ratio=0.22
+                    stroke_width=3.6, max_tip_length_to_length_ratio=0.22
                 )
+                lift_name = "SUSTENTACIÓN" if lang == "ES" else "LIFT"
                 lift_tag = Text(
-                    f"LIFT C_L = {cl:.2f}",
-                    font="Segoe UI", weight=BOLD, font_size=10,
+                    f"{lift_name} C_L = {cl:.2f}",
+                    font="Segoe UI", weight=BOLD, font_size=9.5,
                     color="#00f0ff" if a <= 15.5 else "#ff0055"
-                ).next_to(lift_end, UP, buff=0.10)
+                ).next_to(lift_end, UP, buff=0.08)
 
-                # Drag vector: parallel to freestream (RIGHT * cd * 7.5)
+                # Drag vector: parallel to freestream (RIGHT * cd * 7.2)
                 drag_vec_len = max(cd * 7.2, 0.18)
                 drag_end = qc_center + RIGHT * drag_vec_len
                 drag_arrow = Arrow(
@@ -244,9 +255,10 @@ def create_stall_scene(lang: str = "ES"):
                     buff=0, color="#ff007f",
                     stroke_width=3.5, max_tip_length_to_length_ratio=0.25
                 )
+                drag_name = "RESISTENCIA" if lang == "ES" else "DRAG"
                 drag_tag = Text(
-                    f"DRAG C_D = {cd:.3f}",
-                    font="Segoe UI", weight=BOLD, font_size=10,
+                    f"{drag_name} C_D = {cd:.3f}",
+                    font="Segoe UI", weight=BOLD, font_size=9.5,
                     color="#ff007f"
                 ).next_to(drag_end, RIGHT, buff=0.10)
 
@@ -275,7 +287,8 @@ def create_stall_scene(lang: str = "ES"):
             self.add(airfoil_group)
 
             # -----------------------------------------------------------------
-            # 4. Continuous Flowing Streamlines & Advecting Particle Tracers
+            # 4. Continuous Flowing Streamlines & Moving Streamlet Pulses
+            # Traveling across entire width (x in [-4.2, 4.2])
             # -----------------------------------------------------------------
             num_streamlines = 11
             y_inlets = np.linspace(-1.3, 2.7, num_streamlines)
@@ -283,73 +296,110 @@ def create_stall_scene(lang: str = "ES"):
             def get_streamlines():
                 a = alpha_tracker.get_value()
                 t = time_tracker.get_value()
-                x_sep = sim.separation_point(a)
+                v_flow = 4.2
 
                 stream_vgroup = VGroup()
 
-                for yi in y_inlets:
+                for s_idx, yi in enumerate(y_inlets):
                     pts = []
                     is_suction = (yi >= 0.5)
 
-                    for x_pos in np.linspace(-4.2, 4.2, 55):
+                    for x_pos in np.linspace(-4.2, 4.2, 60):
                         y_pos = yi
 
                         # Airfoil deflection
                         if -1.4 <= x_pos <= 2.8:
                             if is_suction:
-                                # Suction side
                                 arc_peak = 0.85 * np.exp(-((x_pos + 0.2) ** 2) / 1.5)
                                 if a <= 10.0:
                                     y_pos += arc_peak * 0.45
                                 else:
-                                    # Boundary layer separation
                                     sep_lift = 1.45 * ((a - 10.0) / 8.5) * np.exp(-((x_pos - 0.7) ** 2) / 2.8)
                                     y_pos += arc_peak * 0.45 + sep_lift
                             else:
-                                # Pressure side deflection
                                 y_pos -= 0.35 * np.exp(-((x_pos + 0.2) ** 2) / 1.8) * np.sin(np.radians(a))
 
-                        # Traveling wave / wake turbulence (Continuous motion from frame 0!)
-                        flow_speed = 3.8
-                        wave_phase = 2.0 * np.pi * (flow_speed * t - x_pos * 0.6)
-                        if is_suction and a > 12.0 and x_pos > 0.4:
-                            wake_turb = 0.20 * ((a - 12.0) / 6.5) * np.sin(wave_phase)
+                        # Continuous traveling wave & wake vortex oscillations
+                        wave_phase = 2.0 * np.pi * (v_flow * t - x_pos * 0.55)
+                        if is_suction and a > 12.0 and x_pos > 0.3:
+                            # Shedding Kelvin-Helmholtz vortex waves traveling downstream
+                            wake_prog = min((a - 12.0) / 6.5, 1.0)
+                            wake_turb = 0.28 * wake_prog * np.sin(wave_phase + s_idx * 0.7)
                             y_pos += wake_turb
                         else:
-                            # Subtle traveling wave even in clean flow
-                            y_pos += 0.025 * np.sin(wave_phase)
+                            y_pos += 0.02 * np.sin(wave_phase)
 
                         pts.append(np.array([x_pos, y_pos, 0.0]))
 
                     if is_suction and a > 15.0 and yi < 1.6:
                         s_color = "#ff007f" if a > 16.0 else "#ffaa00"
-                        s_width = 1.8
+                        s_width = 1.6
+                        s_op = 0.70
                     else:
                         s_color = "#00f0ff"
-                        s_width = 1.3
+                        s_width = 1.2
+                        s_op = 0.50
 
-                    stream_line = VMobject(stroke_color=s_color, stroke_width=s_width, stroke_opacity=0.65)
+                    # 1. Base continuous streamline
+                    stream_line = VMobject(stroke_color=s_color, stroke_width=s_width, stroke_opacity=s_op)
                     stream_line.set_points_smoothly(pts)
                     stream_vgroup.add(stream_line)
 
-                # Recirculation vortices inside separated wake
+                    # 2. Traveling streamlet pulses along each streamline (moving from -4.2 to +4.2)
+                    pulse_spacing = 2.1
+                    for p_k in range(4):
+                        pulse_x_center = (v_flow * t + p_k * pulse_spacing + s_idx * 0.35) % 8.4 - 4.2
+                        # Create small moving streamlet dash
+                        dash_len = 0.38
+                        x_d1 = pulse_x_center - dash_len / 2.0
+                        x_d2 = pulse_x_center + dash_len / 2.0
+                        if -4.1 <= x_d1 and x_d2 <= 4.1:
+                            dash_pts = []
+                            for xp in np.linspace(x_d1, x_d2, 8):
+                                yp = yi
+                                if -1.4 <= xp <= 2.8:
+                                    if is_suction:
+                                        ap = 0.85 * np.exp(-((xp + 0.2) ** 2) / 1.5)
+                                        if a <= 10.0:
+                                            yp += ap * 0.45
+                                        else:
+                                            sl = 1.45 * ((a - 10.0) / 8.5) * np.exp(-((xp - 0.7) ** 2) / 2.8)
+                                            yp += ap * 0.45 + sl
+                                    else:
+                                        yp -= 0.35 * np.exp(-((xp + 0.2) ** 2) / 1.8) * np.sin(np.radians(a))
+                                wp = 2.0 * np.pi * (v_flow * t - xp * 0.55)
+                                if is_suction and a > 12.0 and xp > 0.3:
+                                    yp += 0.28 * min((a - 12.0) / 6.5, 1.0) * np.sin(wp + s_idx * 0.7)
+                                else:
+                                    yp += 0.02 * np.sin(wp)
+                                dash_pts.append(np.array([xp, yp, 0.0]))
+
+                            stream_dash = VMobject(
+                                stroke_color="#39ff14" if (is_suction and a <= 12.0) else ("#ffffff" if not is_suction else "#ffaa00"),
+                                stroke_width=2.4,
+                                stroke_opacity=0.90
+                            )
+                            stream_dash.set_points_smoothly(dash_pts)
+                            stream_vgroup.add(stream_dash)
+
+                # Active downstream shedding vortex eddies drifting across the wake
                 if a > 13.0:
                     vortex_prog = (a - 13.0) / 5.5
-                    for v_idx, (vx, vy, v_rad, v_speed) in enumerate([
-                        (0.65, 1.35, 0.40, 4.5),
-                        (1.55, 1.60, 0.50, -3.8),
-                        (2.45, 1.45, 0.55, 3.2)
-                    ]):
-                        v_phase = 2.0 * np.pi * v_speed * t
-                        v_arc = Arc(
-                            radius=v_rad * vortex_prog,
-                            start_angle=v_phase,
-                            angle=1.6 * np.pi,
-                            color="#ff0055" if v_idx == 0 else "#ffaa00",
-                            stroke_width=2.0,
-                            stroke_opacity=0.85 * vortex_prog
-                        ).move_to(np.array([vx, vy, 0.0]))
-                        stream_vgroup.add(v_arc)
+                    vortex_speed = 3.6
+                    for v_idx in range(4):
+                        vx_core = ((t * vortex_speed + v_idx * 1.8) % 4.6) + 0.4
+                        if vx_core < 4.2:
+                            vy_core = 1.45 + 0.25 * np.sin(2.0 * np.pi * 1.8 * t + v_idx)
+                            v_phase = 2.0 * np.pi * 5.0 * t * (1.0 if v_idx % 2 == 0 else -1.0)
+                            v_arc = Arc(
+                                radius=0.32 * vortex_prog,
+                                start_angle=v_phase,
+                                angle=1.5 * np.pi,
+                                color="#ff0055" if v_idx % 2 == 0 else "#d600ff",
+                                stroke_width=2.2,
+                                stroke_opacity=0.85 * vortex_prog
+                            ).move_to(np.array([vx_core, vy_core, 0.0]))
+                            stream_vgroup.add(v_arc)
 
                 return stream_vgroup
 
@@ -357,26 +407,26 @@ def create_stall_scene(lang: str = "ES"):
             self.add(streamlines_group)
 
             # -----------------------------------------------------------------
-            # 5. Advecting Particle Tracers (Dynamic Kinetic Stream)
-            # 48 particles streaming continuously from frame 0
+            # 5. Advecting Particle Tracers (120 Particles Streaming Continuously)
+            # Full traverse from x = -4.2 to +4.2 without stagnation
             # -----------------------------------------------------------------
-            num_particles = 48
-            particle_offsets = np.linspace(0.0, 8.4, num_particles)
+            num_particles = 120
+            particle_offsets = np.linspace(0.0, 8.4, num_particles, endpoint=False)
             particle_lanes = np.array([y_inlets[i % len(y_inlets)] for i in range(num_particles)])
 
             def get_particles():
                 t = time_tracker.get_value()
                 a = alpha_tracker.get_value()
-                v_flow = 4.2  # Units per second
+                v_flow = 4.2
 
                 dots_vgroup = VGroup()
                 for i in range(num_particles):
-                    # Compute cyclic x position
+                    # Progress strictly advances across the full frame (-4.2 to +4.2)
                     raw_x = (t * v_flow + particle_offsets[i]) % 8.4 - 4.2
                     yi = particle_lanes[i]
                     is_suction = (yi >= 0.5)
 
-                    # Compute y position matching streamline
+                    # Compute matching streamline y position
                     y_pos = yi
                     if -1.4 <= raw_x <= 2.8:
                         if is_suction:
@@ -389,20 +439,21 @@ def create_stall_scene(lang: str = "ES"):
                         else:
                             y_pos -= 0.35 * np.exp(-((raw_x + 0.2) ** 2) / 1.8) * np.sin(np.radians(a))
 
-                    # In separated wake: particles swirl backwards if trapped!
-                    if is_suction and a > 14.5 and (0.3 < raw_x < 2.0) and (yi < 1.3):
-                        # Reverse recirculating trajectory
-                        swirl_rad = 0.35
-                        swirl_ang = 2.0 * np.pi * 3.5 * t + i * 0.8
-                        raw_x = 1.1 + swirl_rad * np.cos(swirl_ang)
-                        y_pos = 1.35 + swirl_rad * np.sin(swirl_ang)
-                        p_color = "#d600ff"
+                    # In separated wake: particle swirls while advecting downstream!
+                    x_out = raw_x
+                    if is_suction and a > 12.0 and raw_x > 0.3:
+                        wake_prog = min((a - 12.0) / 6.5, 1.0)
+                        swirl_ang = 2.0 * np.pi * 4.2 * t + i * 0.9
+                        # Perturbation superposed onto forward advection (NEVER traps)
+                        x_out = raw_x + 0.12 * wake_prog * np.cos(swirl_ang)
+                        y_pos += 0.25 * wake_prog * np.sin(swirl_ang)
+                        p_color = "#d600ff" if a > 15.0 else "#ff007f"
                     else:
                         p_color = "#39ff14" if is_suction and a <= 12.0 else ("#00f0ff" if not is_suction else "#ffaa00")
 
                     dot = Dot(
-                        point=np.array([raw_x, y_pos, 0.0]),
-                        radius=0.045,
+                        point=np.array([x_out, y_pos, 0.0]),
+                        radius=0.042,
                         color=p_color
                     )
                     dots_vgroup.add(dot)
@@ -427,9 +478,9 @@ def create_stall_scene(lang: str = "ES"):
             ).move_to(np.array([-2.20, -2.35, 0.0]))
 
             if lang == "ES":
-                inset_title = Text("PERFIL CAPA LÍMITE u(y)", font="Segoe UI", weight=BOLD, font_size=10, color="#39ff14").move_to(np.array([-2.20, -1.40, 0.0]))
+                inset_title = Text("PERFIL CAPA LÍMITE u(y)", font="Segoe UI", weight=BOLD, font_size=9.5, color="#39ff14").move_to(inset_box.get_top() + DOWN * 0.22)
             else:
-                inset_title = Text("BOUNDARY LAYER PROFILE u(y)", font="Segoe UI", weight=BOLD, font_size=10, color="#39ff14").move_to(np.array([-2.20, -1.40, 0.0]))
+                inset_title = Text("BOUNDARY LAYER PROFILE u(y)", font="Segoe UI", weight=BOLD, font_size=9.5, color="#39ff14").move_to(inset_box.get_top() + DOWN * 0.22)
 
             # Inset axes
             axis_x = Line(np.array([-3.7, -3.1, 0.0]), np.array([-0.7, -3.1, 0.0]), color="#4a5568", stroke_width=1.0)
@@ -512,9 +563,9 @@ def create_stall_scene(lang: str = "ES"):
             ).move_to(np.array([2.20, -2.35, 0.0]))
 
             if lang == "ES":
-                polar_title = Text("TELEMETRÍA AERODINÁMICA", font="Segoe UI", weight=BOLD, font_size=10, color="#00f0ff").move_to(np.array([2.20, -1.40, 0.0]))
+                polar_title = Text("TELEMETRÍA AERODINÁMICA", font="Segoe UI", weight=BOLD, font_size=9.5, color="#00f0ff").move_to(polar_box.get_top() + DOWN * 0.22)
             else:
-                polar_title = Text("AERODYNAMIC TELEMETRY", font="Segoe UI", weight=BOLD, font_size=10, color="#00f0ff").move_to(np.array([2.20, -1.40, 0.0]))
+                polar_title = Text("AERODYNAMIC TELEMETRY", font="Segoe UI", weight=BOLD, font_size=9.5, color="#00f0ff").move_to(polar_box.get_top() + DOWN * 0.22)
 
             def get_polar_readout():
                 a = alpha_tracker.get_value()
@@ -531,7 +582,7 @@ def create_stall_scene(lang: str = "ES"):
                     color="#00f0ff" if a <= 15.5 else "#ff0055",
                     fill_color="#00f0ff" if a <= 15.5 else "#ff0055",
                     fill_opacity=1.0
-                ).align_to(bar_cl_bg, LEFT)
+                ).move_to(bar_cl_bg.get_center()).align_to(bar_cl_bg, LEFT)
 
                 bar_cd_bg = Rectangle(width=2.6, height=0.18, color="#1f2937", fill_color="#1f2937", fill_opacity=1.0).move_to(np.array([2.20, -2.45, 0.0]))
                 bar_cd = Rectangle(
@@ -539,12 +590,13 @@ def create_stall_scene(lang: str = "ES"):
                     color="#ffaa00" if a <= 12.0 else "#ff007f",
                     fill_color="#ffaa00" if a <= 12.0 else "#ff007f",
                     fill_opacity=1.0
-                ).align_to(bar_cd_bg, LEFT)
+                ).move_to(bar_cd_bg.get_center()).align_to(bar_cd_bg, LEFT)
 
-                lbl_cl = Text(f"Lift C_L: {cl:.2f}", font="Segoe UI", font_size=9, color="#ffffff").next_to(bar_cl_bg, UP, buff=0.06).align_to(bar_cl_bg, LEFT)
-                lbl_cd = Text(f"Drag C_D: {cd:.3f}", font="Segoe UI", font_size=9, color="#ffffff").next_to(bar_cd_bg, UP, buff=0.06).align_to(bar_cd_bg, LEFT)
+                lbl_cl = Text(f"{'Sustentación' if lang == 'ES' else 'Lift'} C_L: {cl:.2f}", font="Segoe UI", font_size=9, color="#ffffff").next_to(bar_cl_bg, UP, buff=0.06).align_to(bar_cl_bg, LEFT)
+                lbl_cd = Text(f"{'Resistencia' if lang == 'ES' else 'Drag'} C_D: {cd:.3f}", font="Segoe UI", font_size=9, color="#ffffff").next_to(bar_cd_bg, UP, buff=0.06).align_to(bar_cd_bg, LEFT)
 
-                eff_text = Text(f"L/D Efficiency: {ld:.1f}", font="Segoe UI", font_size=9, color="#39ff14" if ld > 10 else "#ff0055").move_to(np.array([2.20, -3.10, 0.0]))
+                eff_name = "Eficiencia L/D" if lang == "ES" else "L/D Efficiency"
+                eff_text = Text(f"{eff_name}: {ld:.1f}", font="Segoe UI", font_size=9, color="#39ff14" if ld > 10 else "#ff0055").move_to(np.array([2.20, -3.10, 0.0]))
 
                 return VGroup(bar_cl_bg, bar_cl, lbl_cl, bar_cd_bg, bar_cd, lbl_cd, eff_text)
 
@@ -613,7 +665,7 @@ def render_all():
     print("[CONTINUUM LAB] Rendering Spanish Aerodynamic Stall Simulation (ES)...")
     print("=======================================================")
     cmd_manim_es = [
-        "manim", "-qh", "--media_dir", str(videos_dir / "temp_media"),
+        sys.executable, "-m", "manim", "-qh", "--media_dir", str(videos_dir / "temp_media"),
         this_script, "MovingStallSceneES"
     ]
     subprocess.run(cmd_manim_es, check=True)
@@ -633,7 +685,7 @@ def render_all():
     print("[CONTINUUM LAB] Rendering English Aerodynamic Stall Simulation (EN)...")
     print("=======================================================")
     cmd_manim_en = [
-        "manim", "-qh", "--media_dir", str(videos_dir / "temp_media"),
+        sys.executable, "-m", "manim", "-qh", "--media_dir", str(videos_dir / "temp_media"),
         this_script, "MovingStallSceneEN"
     ]
     subprocess.run(cmd_manim_en, check=True)

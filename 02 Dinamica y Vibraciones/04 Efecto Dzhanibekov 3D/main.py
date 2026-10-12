@@ -18,7 +18,7 @@ import numpy as np
 
 current_dir = Path(__file__).resolve().parent
 WORKSPACE_ROOT = current_dir.parent.parent
-OUTPUT_DIR = WORKSPACE_ROOT / "RENDERS" / "04 Efecto Dzhanibekov 3D"
+OUTPUT_DIR = WORKSPACE_ROOT / "RENDERS" / "10 Efecto Dzhanibekov 3D"
 
 # Ensure local package imports work
 if str(current_dir) not in sys.path:
@@ -82,9 +82,13 @@ def export_benchmark_data():
         print("[ERROR] openpyxl is required to generate Excel benchmark.")
         return False
 
-    bench_dir = OUTPUT_DIR / "benchmarks"
+    bench_dir = OUTPUT_DIR / "extra" / "benchmarks"
     bench_dir.mkdir(parents=True, exist_ok=True)
     xlsx_path = bench_dir / "Efecto_Dzhanibekov_Conservacion_Euler.xlsx"
+
+    # Also keep backward-compatible path
+    legacy_bench = OUTPUT_DIR / "benchmarks"
+    legacy_bench.mkdir(parents=True, exist_ok=True)
 
     print(f"[BENCHMARK] Generating dynamic Excel model: {xlsx_path.name}...")
 
@@ -165,47 +169,86 @@ def export_benchmark_data():
         ws.column_dimensions[ws.cell(row=1, column=idx).column_letter].width = width
 
     wb.save(str(xlsx_path))
+    wb.save(str(legacy_bench / xlsx_path.name))
     print(f"[SUCCESS] Dynamic benchmark workbook saved: {xlsx_path}")
     return True
 
 
 def render_video(quality_flag: str = "-qh"):
     """
-    Renders the 14-second 9:16 vertical vector video via Manim Community.
+    Renders the 14-second 9:16 vertical vector videos in Spanish and English with procedural audio.
     """
+    import imageio_ffmpeg
+    ffmpeg_bin = imageio_ffmpeg.get_ffmpeg_exe()
+
     video_dir = OUTPUT_DIR / "videos"
     video_dir.mkdir(parents=True, exist_ok=True)
     cache_dir = video_dir / "manim_cache"
     cache_dir.mkdir(parents=True, exist_ok=True)
 
-    scene_file = current_dir / "src" / "visualization" / "dzhanibekov_scene.py"
-    target_mp4 = video_dir / "efecto_dzhanibekov_1080x1920.mp4"
+    # 1. Synthesize procedural microgravity audio (14.0s)
+    audio_path = str(video_dir / "dzhanibekov_audio.wav")
+    from src.audio.dzhanibekov_audio_synth import synthesize_dzhanibekov_audio
+    print(f"\n[+] Sintetizando audio procedural de microgravedad Dzhanibekov (14.0s)...")
+    synthesize_dzhanibekov_audio(duration=14.0, fs=44100, output_path=audio_path)
 
-    cmd = [
-        sys.executable, "-m", "manim", quality_flag,
-        str(scene_file), "DzhanibekovScene",
-        "--media_dir", str(cache_dir),
-        "-o", "efecto_dzhanibekov_1080x1920.mp4"
+    scene_file = current_dir / "src" / "visualization" / "dzhanibekov_scene.py"
+    tasks = [
+        ("DzhanibekovSceneES", "Efecto Dzhanibekov 3D ES.mp4", "Español (ES)"),
+        ("DzhanibekovSceneEN", "Dzhanibekov Effect 3D EN.mp4", "English (EN)"),
     ]
 
-    print(f"[CONTINUUM LAB] Launching Manim 9:16 video compilation ({quality_flag})...")
-    print(f"[COMMAND] {' '.join(cmd)}")
-    res = subprocess.run(cmd, cwd=str(current_dir))
+    for scene_cls, out_name, lang_desc in tasks:
+        target_mp4 = video_dir / out_name
+        temp_out = f"temp_{out_name}"
+        cmd = [
+            sys.executable, "-m", "manim", quality_flag,
+            str(scene_file), scene_cls,
+            "--media_dir", str(cache_dir),
+            "-o", temp_out
+        ]
 
-    if res.returncode != 0:
-        print(f"[ERROR] Manim rendering failed with exit code {res.returncode}")
-        return False
+        print(f"\n[+] Compilando video ({lang_desc}, {quality_flag}) a 60 FPS...")
+        res = subprocess.run(cmd, cwd=str(current_dir))
 
-    rendered_files = list(cache_dir.glob("**/efecto_dzhanibekov_1080x1920.mp4"))
-    if rendered_files:
-        import shutil
-        shutil.move(str(rendered_files[0]), str(target_mp4))
-        shutil.rmtree(str(cache_dir), ignore_errors=True)
-        print(f"[SUCCESS] Video finalized at: {target_mp4}")
-        return True
+        if res.returncode != 0:
+            print(f"[ERROR] Manim falló para {scene_cls} con código {res.returncode}")
+            return False
 
-    print("[WARNING] Compiled video file not located in cache.")
-    return False
+        rendered_files = list(cache_dir.glob(f"**/{temp_out}"))
+        if rendered_files:
+            import shutil
+            print(f"[+] Multiplexando audio + video -> {target_mp4}")
+            cmd_mux = [
+                ffmpeg_bin, "-y", "-i", str(rendered_files[0]), "-i", audio_path,
+                "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", "-shortest", str(target_mp4)
+            ]
+            subprocess.run(cmd_mux, check=True)
+            print(f"[SUCCESS] Video con audio guardado en:\n -> {target_mp4}")
+        else:
+            print(f"[WARNING] No se encontró el video generado en cache para {out_name}.")
+            return False
+
+    import shutil
+    if Path(audio_path).exists():
+        Path(audio_path).unlink()
+    shutil.rmtree(str(cache_dir), ignore_errors=True)
+
+    # 3. Extract 1080x1920 Hero Capture
+    captures_dir = OUTPUT_DIR / "extra" / "capturas"
+    captures_dir.mkdir(parents=True, exist_ok=True)
+    hero_path = captures_dir / "dzhanibekov_hero.png"
+    en_video = video_dir / "Dzhanibekov Effect 3D EN.mp4"
+    if en_video.exists():
+        print(f"[+] Generando captura heroica 1080x1920 en {hero_path}...")
+        cmd_hero = [
+            ffmpeg_bin, "-y", "-ss", "00:00:04.2", "-i", str(en_video),
+            "-vframes", "1", "-q:v", "2", str(hero_path)
+        ]
+        subprocess.run(cmd_hero, check=True)
+
+    print("\n[SUCCESS] Todos los videos del Efecto Dzhanibekov (ES y EN con audio) y capturas fueron compilados exitosamente.")
+    return True
 
 
 def main():

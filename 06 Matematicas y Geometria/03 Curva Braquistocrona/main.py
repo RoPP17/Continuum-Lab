@@ -34,35 +34,66 @@ BENCH_DIR = RENDERS_DIR / "benchmarks"
 
 
 def render_video(quality: str = "qh") -> bool:
-    """Compiles the 9:16 vertical vector video using Manim."""
+    """Compiles the bilingual 9:16 vertical vector videos with procedural audio using Manim & FFmpeg."""
+    import imageio_ffmpeg
+    ffmpeg_bin = imageio_ffmpeg.get_ffmpeg_exe()
+
     VIDEO_DIR.mkdir(parents=True, exist_ok=True)
     cache_dir = VIDEO_DIR / "manim_cache"
-    scene_file = project_dir / "src" / "visualization" / "manim_brachistochrone.py"
-    target_mp4 = VIDEO_DIR / "braquistocrona_tiktok_1080x1920.mp4"
+    cache_dir.mkdir(parents=True, exist_ok=True)
 
-    cmd = [
-        sys.executable, "-m", "manim", f"-{quality}",
-        str(scene_file), "TikTokBrachistochrone",
-        "--media_dir", str(cache_dir),
-        "-o", "braquistocrona_tiktok_1080x1920.mp4",
+    # 1. Synthesize procedural audio (14.5s)
+    audio_path = str(VIDEO_DIR / "brachistochrone_audio.wav")
+    from src.audio.brachistochrone_audio_synth import synthesize_brachistochrone_audio
+    print(f"\n[+] Sintetizando audio procedural de la Braquistócrona (14.5s)...")
+    synthesize_brachistochrone_audio(duration=14.5, fs=44100, output_path=audio_path)
+
+    scene_file = project_dir / "src" / "visualization" / "manim_brachistochrone.py"
+
+    tasks = [
+        ("BrachistochroneSceneES", "Curva Braquistocrona ES.mp4", "Español (ES)"),
+        ("BrachistochroneSceneEN", "Brachistochrone Paradox EN.mp4", "English (EN)"),
     ]
 
-    print(f"\n[CONTINUUM LAB] Compilando video vectorial vertical 9:16 ({quality.upper()}) a 60 FPS...")
-    print(f"Comando: {' '.join(cmd)}")
-    res = subprocess.run(cmd, cwd=str(project_dir))
-    if res.returncode != 0:
-        print(f"[ERROR] Manim falló con código {res.returncode}")
-        return False
+    for scene_cls, out_name, lang_desc in tasks:
+        target_mp4 = VIDEO_DIR / out_name
+        temp_out_name = f"temp_{out_name}"
+        cmd = [
+            sys.executable, "-m", "manim", f"-{quality}",
+            str(scene_file), scene_cls,
+            "--media_dir", str(cache_dir),
+            "-o", temp_out_name,
+        ]
 
-    rendered_files = list(cache_dir.glob("**/braquistocrona_tiktok_1080x1920.mp4"))
-    if rendered_files:
-        shutil.move(str(rendered_files[0]), str(target_mp4))
-        shutil.rmtree(str(cache_dir), ignore_errors=True)
-        print(f"\n[SUCCESS] Video renderizado con éxito en:\n -> {target_mp4}")
-        return True
+        print(f"\n[+] Compilando video ({lang_desc}) vertical 9:16 ({quality.upper()}) a 60 FPS...")
+        res = subprocess.run(cmd, cwd=str(project_dir))
+        if res.returncode != 0:
+            print(f"[ERROR] Manim falló para {scene_cls} con código {res.returncode}")
+            return False
 
-    print("[WARNING] No se encontró el archivo generado en cache.")
-    return False
+        rendered_files = list(cache_dir.glob(f"**/{temp_out_name}"))
+        if rendered_files:
+            print(f"[+] Multiplexando audio + video -> {target_mp4}")
+            cmd_mux = [
+                ffmpeg_bin, "-y", "-i", str(rendered_files[0]), "-i", audio_path,
+                "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", "-shortest", str(target_mp4)
+            ]
+            subprocess.run(cmd_mux, check=True)
+            print(f"[SUCCESS] Video con audio guardado en:\n -> {target_mp4}")
+        else:
+            print(f"[WARNING] No se encontró el archivo generado en cache para {out_name}.")
+            return False
+
+    # Cleanup temporary files
+    if Path(audio_path).exists():
+        Path(audio_path).unlink()
+    shutil.rmtree(str(cache_dir), ignore_errors=True)
+    old_file = VIDEO_DIR / "braquistocrona_tiktok_1080x1920.mp4"
+    if old_file.exists():
+        old_file.unlink()
+
+    print("\n[SUCCESS] Todos los videos de la Braquistócrona (ES y EN con audio) fueron compilados exitosamente.")
+    return True
 
 
 def run_benchmark():

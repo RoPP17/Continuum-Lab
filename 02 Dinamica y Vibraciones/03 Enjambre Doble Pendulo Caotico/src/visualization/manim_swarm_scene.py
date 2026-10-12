@@ -1,7 +1,6 @@
 """
-Continuum Lab — Dinámica No Lineal y Caos Determinista
 Visualización Vectorial de Ultra-Alta Definición (1080x1920 @ 60 FPS, 9:16 Vertical)
-Enjambre de 50 Doble Péndulos Planos Hamiltoniano con Divergencia de Lyapunov
+Enjambre de 50 Doble Péndulos Planos con Transición de Fase y Divergencia Caótica
 Versiones: Español (ES) e Inglés (EN)
 """
 
@@ -17,52 +16,48 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from src.physics.double_pendulum_swarm import DoublePendulumSwarmSimulator, SwarmParameters
 
-# Configuración Estricta 9:16 Vertical para Plataformas Móviles de Alta Retención
+# Configuración Estricta 9:16 Vertical para Plataformas Móviles (TikTok, Shorts, Reels)
 config.pixel_width = 1080
 config.pixel_height = 1920
 config.frame_width = 9.0
 config.frame_height = 16.0
 config.frame_rate = 60
-config.background_color = "#0B0F19"  # Dark Cosmic Void
+config.background_color = "#080C16"  # Dark Cosmic Void
 
 TEXT_CONFIG = {
     "es": {
-        "hud_title": "[ CONTINUUM LAB // SISTEMAS DINÁMICOS ]",
-        "phase_1": "FASE 1: ORDEN",
-        "phase_2": "FASE 2: BIFURCACIÓN",
-        "phase_3": "FASE 3: CAOS",
-        "swarm_label": "ENJAMBRE     : 50 PÉNDULOS IDÉNTICOS",
-        "perturb_label": "PERTURBACIÓN : Δθ = 10⁻⁶ rad (0.000057°)",
+        "hud_title": "[ DINÁMICA CAÓTICA // EFECTO MARIPOSA ]",
+        "phase_1": "FASE 1: PÉNDULO SIMPLE (ORDEN)",
+        "phase_2": "FASE 2: PÉNDULO DOBLE",
+        "phase_3": "FASE 3: CAOS DETERMINISTA",
+        "swarm_label": "ENJAMBRE     : 50 PÉNDULOS",
+        "perturb_label": "PERTURBACIÓN : Δθ = 10⁻⁴ rad (0.028°)",
         "lyapunov_label": "EXP. LYAPUNOV: λ ≈ 1.42 s⁻¹",
         "divergence_label": "DIVERGENCIA  : |ΔX(t)| ~ e^(λ·t)",
         "determinism_label": "DETERMINISMO : 100% (CERO AZAR)",
         "sep_prefix": "SEPARACIÓN   : ",
-        "callout_line1": "SEGUNDO 0 AL 5: PARECEN UN SOLO PÉNDULO.",
-        "callout_line2": "SEGUNDO 7: LA MARIPOSA DESTRUYE EL ORDEN.",
-        "subtext": "SISTEMA NO LINEAL DE EULER-LAGRANGE | CONSERVACIÓN HAMILTONIANA ΔE/E₀ < 10⁻⁷",
     },
     "en": {
-        "hud_title": "[ CONTINUUM LAB // DYNAMICAL SYSTEMS ]",
-        "phase_1": "PHASE 1: ORDER",
-        "phase_2": "PHASE 2: BIFURCATION",
-        "phase_3": "PHASE 3: CHAOS",
-        "swarm_label": "SWARM        : 50 IDENTICAL PENDULUMS",
-        "perturb_label": "PERTURBATION : Δθ = 10⁻⁶ rad (0.000057°)",
+        "hud_title": "[ CHAOTIC DYNAMICS // BUTTERFLY EFFECT ]",
+        "phase_1": "PHASE 1: SINGLE PENDULUM (ORDER)",
+        "phase_2": "PHASE 2: DOUBLE PENDULUM",
+        "phase_3": "PHASE 3: DETERMINISTIC CHAOS",
+        "swarm_label": "SWARM        : 50 PENDULUMS",
+        "perturb_label": "PERTURBATION : Δθ = 10⁻⁴ rad (0.028°)",
         "lyapunov_label": "LYAPUNOV EXP : λ ≈ 1.42 s⁻¹",
         "divergence_label": "DIVERGENCE   : |ΔX(t)| ~ e^(λ·t)",
         "determinism_label": "DETERMINISM  : 100% (ZERO RANDOMNESS)",
         "sep_prefix": "SEPARATION   : ",
-        "callout_line1": "SECONDS 0 TO 5: THEY LOOK LIKE A SINGLE PENDULUM.",
-        "callout_line2": "SECOND 7: THE BUTTERFLY SHATTERS ORDER.",
-        "subtext": "NONLINEAR EULER-LAGRANGE SYSTEM | HAMILTONIAN CONSERVATION ΔE/E₀ < 10⁻⁷",
     },
 }
 
 
 class BaseSwarmDoublePendulumScene(Scene):
     """
-    Clase base para la simulación del enjambre de 50 doble péndulos.
-    Permite instanciar la escena en español ('es') o en inglés ('en').
+    Simulación cinemática y dinámica en 2 fases:
+      - 0.0s a 2.5s: 1 solo péndulo oscilando armónicamente con alta retención.
+      - 2.5s a 15.0s: Acoplamiento del segundo brazo generando el péndulo doble
+        y la divergencia fractal del enjambre de 50 péndulos iridiscentes.
     """
 
     lang = "es"
@@ -76,6 +71,8 @@ class BaseSwarmDoublePendulumScene(Scene):
         fps = 60
         duration = 15.0  # 15 segundos exactos
         total_frames = int(fps * duration)  # 900 frames
+        t_switch = 2.5  # Transición exacta a los 2.5s
+        idx_switch = int(round(t_switch * fps))  # Frame 150
 
         params = SwarmParameters(
             m1=1.0,
@@ -86,7 +83,6 @@ class BaseSwarmDoublePendulumScene(Scene):
             num_pendulums=50,
             theta1_0_deg=120.0,
             theta2_0_deg=-60.0,
-            delta_theta=1.0e-6,
             duration=duration,
             fps=fps,
             rtol=1.0e-9,
@@ -94,11 +90,15 @@ class BaseSwarmDoublePendulumScene(Scene):
         )
 
         sim = DoublePendulumSwarmSimulator(params)
-        data = sim.run_simulation()
+        data = sim.run_two_phase_simulation(
+            t_switch=t_switch,
+            delta_theta1=2.0e-5,
+            delta_theta2=2.0e-4,
+        )
 
-        # Coordenadas escaladas para encuadre en lienzo 9:16
+        # Coordenadas escaladas para encuadre seguro en lienzo 9:16
         scale = 1.25
-        pivot = np.array([0.0, 0.70, 0.0])
+        pivot = np.array([0.0, 0.75, 0.0])
 
         x1_raw = data["x1"]  # (50, 901)
         y1_raw = data["y1"]
@@ -124,11 +124,11 @@ class BaseSwarmDoublePendulumScene(Scene):
         # =========================================================================
         # Puntos clave del espectro: Cian -> Azul -> Violeta -> Magenta -> Amarillo
         stops = [
-            (0.00, np.array([0x00, 0xF0, 0xFF], dtype=np.float64)),  # #00F0FF
-            (0.25, np.array([0x00, 0x70, 0xF3], dtype=np.float64)),  # #0070F3
-            (0.50, np.array([0x79, 0x28, 0xCA], dtype=np.float64)),  # #7928CA
-            (0.75, np.array([0xFF, 0x00, 0x55], dtype=np.float64)),  # #FF0055
-            (1.00, np.array([0xFF, 0xE6, 0x00], dtype=np.float64)),  # #FFE600
+            (0.00, np.array([0x00, 0xF0, 0xFF], dtype=np.float64)),  # #00F0FF (Cian Neón)
+            (0.25, np.array([0x00, 0x70, 0xF3], dtype=np.float64)),  # #0070F3 (Azul Eléctrico)
+            (0.50, np.array([0x79, 0x28, 0xCA], dtype=np.float64)),  # #7928CA (Violeta Cyber)
+            (0.75, np.array([0xFF, 0x00, 0x55], dtype=np.float64)),  # #FF0055 (Magenta Intenso)
+            (1.00, np.array([0xFF, 0xE6, 0x00], dtype=np.float64)),  # #FFE600 (Amarillo Solar)
         ]
 
         def get_rainbow_rgb(u: float) -> np.ndarray:
@@ -143,16 +143,15 @@ class BaseSwarmDoublePendulumScene(Scene):
         base_cyber_rgb = np.array(
             [get_rainbow_rgb(k / (n_pends - 1)) for k in range(n_pends)]
         )  # (50, 3)
-        pure_white_rgb = np.array([255.0, 255.0, 255.0])
+        pure_white_rgb = np.array([240.0, 250.0, 255.0])
 
         # Ponderación temporal de fase:
-        # t in [0.0, 5.5]: w = 0.0 (Blanco metálico sólido)
-        # t in [5.5, 7.5]: w in [0.0, 1.0] (Bifurcación iridiscente)
-        # t in [7.5, 15.0]: w = 1.0 (Abanico cromático fluorescente)
+        # t in [0.0, 2.5]: Blanco/Cian puro (Péndulo simple unificado)
+        # t in [2.5, 4.5]: Transición cromática iridiscente
+        # t in [4.5, 15.0]: Abanico cromático fluorescente completo
         t_arr = data["t"]
-        w_phase = np.clip((t_arr - 5.5) / 2.0, 0.0, 1.0)  # (901,)
+        w_phase = np.clip((t_arr - 2.5) / 2.0, 0.0, 1.0)  # (901,)
 
-        # Tabla de colores precalculada (50, 901)
         rgb_interpolated = (
             (1.0 - w_phase[None, :, None]) * pure_white_rgb[None, None, :]
             + w_phase[None, :, None] * base_cyber_rgb[:, None, :]
@@ -173,31 +172,35 @@ class BaseSwarmDoublePendulumScene(Scene):
         top_box = RoundedRectangle(
             corner_radius=0.15,
             width=8.2,
-            height=2.35,
+            height=2.25,
             stroke_color="#1E293B",
             stroke_width=1.5,
             fill_color="#0D121F",
             fill_opacity=0.94,
-        ).move_to(UP * 6.35)
+        ).move_to(UP * 6.45)
 
         hud_title = Text(
             txts["hud_title"],
             font="Consolas",
-            font_size=12,
+            font_size=10.5,
             weight=BOLD,
             color="#00F0FF",
-        ).move_to(top_box.get_top() + DOWN * 0.28 + LEFT * 1.55)
+        )
+        hud_title.move_to(top_box.get_top() + DOWN * 0.28)
+        hud_title.align_to(top_box.get_left() + RIGHT * 0.35, LEFT)
 
         phase_status = Text(
             f"T = 00.0s | {txts['phase_1']}",
             font="Consolas",
-            font_size=12,
+            font_size=10.5,
             color="#E2E8F0",
-        ).move_to(top_box.get_top() + DOWN * 0.28 + RIGHT * 2.30)
+        )
+        phase_status.move_to(top_box.get_top() + DOWN * 0.28)
+        phase_status.align_to(top_box.get_right() + LEFT * 0.35, RIGHT)
 
         divider_top = Line(
-            start=top_box.get_left() + RIGHT * 0.25 + UP * 0.65,
-            end=top_box.get_right() + LEFT * 0.25 + UP * 0.65,
+            start=top_box.get_left() + RIGHT * 0.25 + UP * 0.60,
+            end=top_box.get_right() + LEFT * 0.25 + UP * 0.60,
             stroke_color="#1E293B",
             stroke_width=1.0,
         )
@@ -264,52 +267,7 @@ class BaseSwarmDoublePendulumScene(Scene):
         hud_dynamic = VGroup(phase_status, t_separacion)
 
         # =========================================================================
-        # 4. CALLOUT DE RETENCIÓN MÓVIL (SAFE ZONE INFERIOR: Y < -5.5)
-        # =========================================================================
-        bottom_box = RoundedRectangle(
-            corner_radius=0.15,
-            width=8.2,
-            height=2.05,
-            stroke_color="#FF0055",
-            stroke_width=1.5,
-            fill_color="#0D121F",
-            fill_opacity=0.94,
-        ).move_to(DOWN * 6.40)
-
-        c_line1 = Text(
-            txts["callout_line1"],
-            font="Consolas",
-            font_size=13.5,
-            weight=BOLD,
-            color="#FFE600",
-        ).move_to(bottom_box.get_top() + DOWN * 0.42)
-
-        c_line2 = Text(
-            txts["callout_line2"],
-            font="Consolas",
-            font_size=13.5,
-            weight=BOLD,
-            color="#FF0055",
-        ).move_to(bottom_box.get_top() + DOWN * 0.88)
-
-        divider_bot = Line(
-            start=bottom_box.get_left() + RIGHT * 0.35 + DOWN * 0.22,
-            end=bottom_box.get_right() + LEFT * 0.35 + DOWN * 0.22,
-            stroke_color="#1E293B",
-            stroke_width=1.0,
-        )
-
-        c_subtext = Text(
-            txts["subtext"],
-            font="Consolas",
-            font_size=9.5,
-            color="#64748B",
-        ).move_to(bottom_box.get_top() + DOWN * 1.55)
-
-        bottom_hud = VGroup(bottom_box, c_line1, c_line2, divider_bot, c_subtext)
-
-        # =========================================================================
-        # 5. COMPONENTES VISUALES DEL ENJAMBRE DE PÉNDULOS
+        # 4. COMPONENTES VISUALES DEL ENJAMBRE DE PÉNDULOS
         # =========================================================================
         pivot_dot = Dot(point=pivot, radius=0.08, color=WHITE)
         pivot_ring = Circle(radius=0.18, color="#00F0FF", stroke_width=2.0).move_to(pivot)
@@ -321,43 +279,57 @@ class BaseSwarmDoublePendulumScene(Scene):
             pivot_ring, pivot_dot, pivot_tick_t, pivot_tick_b, pivot_tick_l, pivot_tick_r
         )
 
-        # Estructura del Enjambre: 50 Barras 1, 50 Barras 2, 50 Masas terminales
-        rods1 = [
-            Line(pivot, p1_coords[k, 0], stroke_width=2.4, color=WHITE)
-            for k in range(n_pends)
-        ]
-        rods2 = [
-            Line(p1_coords[k, 0], p2_coords[k, 0], stroke_width=1.9, color=WHITE)
+        # Masas intermedias (Bob 1) y terminales (Bob 2)
+        bobs1 = [
+            Dot(p1_coords[k, 0], radius=0.065, color=WHITE)
             for k in range(n_pends)
         ]
         bobs2 = [
-            Dot(p2_coords[k, 0], radius=0.055, color=WHITE)
+            Dot(p1_coords[k, 0], radius=0.055, color=WHITE)
             for k in range(n_pends)
         ]
 
-        # Trazadores de Punta (Estelas luminosas con gradiente de opacidad)
-        tail_len = 36  # Longitud de estela cometa (~0.60 segundos a 60 FPS)
-        opacities = list(np.linspace(0.03, 0.90, tail_len))
+        # Estructura del Enjambre: 50 Barras 1 y 50 Barras 2
+        rods1 = [
+            Line(pivot, p1_coords[k, 0], stroke_width=2.8, color=WHITE)
+            for k in range(n_pends)
+        ]
+        rods2 = [
+            Line(p1_coords[k, 0], p1_coords[k, 0], stroke_width=2.2, color=WHITE)
+            for k in range(n_pends)
+        ]
+
+        # Anillo de onda de choque en el momento exacto de transición (t = 2.5s)
+        shockwave_ring = Circle(
+            radius=0.05,
+            color="#00F0FF",
+            stroke_width=3.0,
+            fill_opacity=0.0,
+        ).move_to(p1_coords[0, idx_switch])
+        shockwave_ring.set_opacity(0.0)
+
+        # Trazadores de Punta (Estelas luminosas con gradiente cometa)
+        tail_len = 45  # ~0.75s a 60 FPS
+        opacities = list(np.linspace(0.02, 0.90, tail_len))
 
         trails = []
         for k in range(n_pends):
             tr = VMobject(stroke_width=2.4)
-            tr.set_points_as_corners([p2_coords[k, 0], p2_coords[k, 0]])
+            tr.set_points_as_corners([p1_coords[k, 0], p1_coords[k, 0]])
             tr.set_stroke(color=hex_colors[k][0], opacity=[0.05, 0.85])
             trails.append(tr)
 
-        # Grupo activo del enjambre para garantizar redibujado continuo en Cairo
-        swarm_group = VGroup(*trails, *rods1, *rods2, *bobs2)
+        # Grupo activo del enjambre
+        swarm_group = VGroup(*trails, *rods1, *rods2, *bobs1, *bobs2, shockwave_ring)
 
-        # Agregar elementos al lienzo
+        # Agregar elementos al lienzo (SIN HUD INFERIOR)
         self.add(top_hud_static)
         self.add(hud_dynamic)
-        self.add(bottom_hud)
         self.add(pivot_group)
         self.add(swarm_group)
 
         # =========================================================================
-        # 6. SINCRONIZADORES VECTORIALES DINÁMICOS VINCULADOS A MOBJECTS
+        # 5. SINCRONIZADORES VECTORIALES DINÁMICOS VINCULADOS A MOBJECTS
         # =========================================================================
         time_tracker = ValueTracker(0.0)
         last_sec_int = [-1]
@@ -367,28 +339,66 @@ class BaseSwarmDoublePendulumScene(Scene):
             frame_idx = int(np.clip(t_curr * fps, 0, total_frames - 1))
             start_tail = max(0, frame_idx - tail_len)
 
+            is_phase1 = t_curr < t_switch
+
+            # Animación de despliegue de la barra 2 en el umbral t = 2.5s
+            if is_phase1:
+                deploy_factor = 0.0
+            elif t_curr < (t_switch + 0.12):
+                deploy_factor = (t_curr - t_switch) / 0.12
+            else:
+                deploy_factor = 1.0
+
+            # Onda de choque luminosa a los 2.5s
+            if 2.45 <= t_curr <= 2.90:
+                sw_prog = (t_curr - 2.45) / 0.45
+                shockwave_ring.move_to(p1_coords[0, frame_idx])
+                shockwave_ring.set_width(0.1 + sw_prog * 1.8)
+                shockwave_ring.set_stroke(color="#00F0FF", opacity=(1.0 - sw_prog) * 0.95, width=3.0 * (1.0 - sw_prog))
+            else:
+                shockwave_ring.set_opacity(0.0)
+
             # Actualización vectorizada de los 50 péndulos
             for k in range(n_pends):
                 p1 = p1_coords[k, frame_idx]
-                p2 = p2_coords[k, frame_idx]
                 curr_color = hex_colors[k][frame_idx]
 
-                # Varillas y masas
+                # Varilla 1 y Masa 1
                 rods1[k].put_start_and_end_on(pivot, p1)
-                rods2[k].put_start_and_end_on(p1, p2)
-                bobs2[k].move_to(p2)
-
-                # Color cromático dinámico
                 rods1[k].set_color(curr_color)
-                rods2[k].set_color(curr_color)
-                bobs2[k].set_color(curr_color)
+                bobs1[k].move_to(p1)
+                bobs1[k].set_color(curr_color)
 
-                # Estela cometa con opacidad decreciente
-                pts = p2_coords[k, start_tail : frame_idx + 1]
-                if len(pts) > 1:
-                    trails[k].set_points_as_corners(pts)
-                    cur_opacs = opacities[-len(pts) :]
-                    trails[k].set_stroke(color=curr_color, opacity=cur_opacs)
+                if is_phase1:
+                    # En Fase 1: Únicamente 1 péndulo visible (varilla 2 oculta)
+                    rods2[k].put_start_and_end_on(p1, p1)
+                    rods2[k].set_stroke(opacity=0.0)
+                    bobs2[k].move_to(p1)
+                    bobs2[k].set_opacity(0.0)
+
+                    # Estela trazada por la punta del péndulo simple (p1)
+                    pts = p1_coords[k, start_tail : frame_idx + 1]
+                    if len(pts) > 1:
+                        trails[k].set_points_as_corners(pts)
+                        cur_opacs = opacities[-len(pts) :]
+                        trails[k].set_stroke(color=curr_color, opacity=cur_opacs)
+                else:
+                    # En Fase 2 & 3: Péndulo doble completamente activo
+                    p2_target = p2_coords[k, frame_idx]
+                    p2_current = p1 + deploy_factor * (p2_target - p1)
+
+                    rods2[k].put_start_and_end_on(p1, p2_current)
+                    rods2[k].set_stroke(color=curr_color, opacity=1.0)
+                    bobs2[k].move_to(p2_current)
+                    bobs2[k].set_opacity(1.0)
+                    bobs2[k].set_color(curr_color)
+
+                    # Estela trazada por la punta del péndulo doble (p2)
+                    pts = p2_coords[k, start_tail : frame_idx + 1]
+                    if len(pts) > 1:
+                        trails[k].set_points_as_corners(pts)
+                        cur_opacs = opacities[-len(pts) :]
+                        trails[k].set_stroke(color=curr_color, opacity=cur_opacs)
 
         def update_hud(mob, dt):
             t_curr = time_tracker.get_value()
@@ -400,21 +410,20 @@ class BaseSwarmDoublePendulumScene(Scene):
                 last_sec_int[0] = sec_step
 
                 # Fase dinámica
-                if t_sec < 5.5:
+                if t_sec < 2.5:
                     p_txt = f"T = {t_sec:04.1f}s | {txts['phase_1']}"
                     p_col = "#E2E8F0"
-                elif t_sec < 7.5:
+                elif t_sec < 5.0:
                     p_txt = f"T = {t_sec:04.1f}s | {txts['phase_2']}"
                     p_col = "#00F0FF"
                 else:
                     p_txt = f"T = {t_sec:04.1f}s | {txts['phase_3']}"
                     p_col = "#FF0055"
 
-                phase_status.become(
-                    Text(p_txt, font="Consolas", font_size=12, color=p_col).move_to(
-                        top_box.get_top() + DOWN * 0.28 + RIGHT * 2.30
-                    )
-                )
+                new_phase = Text(p_txt, font="Consolas", font_size=10.5, color=p_col)
+                new_phase.move_to(top_box.get_top() + DOWN * 0.28)
+                new_phase.align_to(top_box.get_right() + LEFT * 0.35, RIGHT)
+                phase_status.become(new_phase)
 
                 # Métrica de separación dinámica
                 span_val = swarm_span[frame_idx]
@@ -435,7 +444,7 @@ class BaseSwarmDoublePendulumScene(Scene):
                     ).move_to(right_col[2].get_center())
                 )
 
-        # Asignar updaters directamente a Mobjects para forzar redibujado en cada frame
+        # Vincular sincronizadores a los Mobjects
         swarm_group.add_updater(update_swarm)
         hud_dynamic.add_updater(update_hud)
 

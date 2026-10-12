@@ -36,7 +36,8 @@ Continuum Lab/
 ├── 01 Mecanica de Fluidos/                  # Fluid dynamics, aerodynamics, mesoscopic kinetics
 │   └── 01 LBM D2Q9 Karman Vortex/           # LBM D2Q9 shedding, moving cylinder & reactive audio
 ├── 02 Dinamica y Vibraciones/               # Non-linear dynamics, chaos & multi-body mechanics
-│   └── 01 Pendulo Triple Caotico/           # 6-DOF Lagrangian integrator & FM reactive synthesis
+│   ├── 01 Pendulo Triple Caotico/           # 6-DOF Lagrangian integrator & FM reactive synthesis
+│   └── 04 Efecto Dzhanibekov 3D/            # Euler intermediate axis instability & Tennis Racket theorem
 ├── 04 Termodinamica y Calor/                # Thermodynamics, conduction, heat diffusion & entropy
 │   └── 01 Ley Cero de la Termodinamica 3 Cuerpos/ # Multi-material 3-body conduction, Zeroth law proof
 ├── 06 Matematicas y Geometria/              # Pure & applied mathematics, geometry, complex analysis
@@ -50,6 +51,7 @@ Continuum Lab/
 │   ├── 2 Pendulo Triple Trayectoria Caotica/extra/
 │   ├── 3 Series de Fourier Geometricas/extra/
 │   ├── 4 Identidad de Euler 3D/extra/
+│   ├── 10 Efecto Dzhanibekov 3D/extra/      # 1080x1920 covers, dynamic Excel benchmark & 60 FPS video
 │   └── 14 Ley Cero Termodinamica 3 Cuerpos/ # 1080x1920 covers, dynamic Excel benchmark & GIF preview
 ├── run_tests.py                             # Global verification test runner (all tests green)
 └── README.md                                # Master documentation
@@ -78,6 +80,10 @@ Continuum Lab/
 ### 5. [Thermodynamics: Zeroth Law & Multi-Material Heat Diffusion](04%20Termodinamica%20y%20Calor/01%20Ley%20Cero%20de%20la%20Termodinamica%203%20Cuerpos)
 - **Physics:** 2D finite-volume Fourier heat equation $\rho c_p \frac{\partial T}{\partial t} = \nabla \cdot (k \nabla T)$ across 3 contiguous solids: Copper ($100^\circ\text{C}$), Stainless Steel ($25^\circ\text{C}$), and Aluminum ($0^\circ\text{C}$). Conservative harmonic interface conductividades $k_{int} = \frac{2 k_1 k_2}{k_1 + k_2}$.
 - **Features:** Closed-form First Law benchmark ($T_{eq} = 46.2^\circ\text{C}$), dynamic heat flux arrows ($\mathbf{q} = -k\nabla T$), kinetic phonon streamlets, exact energy conservation ($\Delta E/E_0 < 10^{-5}$), and synchronized 84 BPM cinematic ambient science soundtrack with equilibrium resolution chime.
+
+### 6. [Rotational Dynamics: Dzhanibekov Effect & Tennis Racket Theorem](02%20Dinamica%20y%20Vibraciones/04%20Efecto%20Dzhanibekov%203D)
+- **Physics:** Rigid-body Euler rotational equations with principal moments $I_1 = 1.0 < I_2 = 2.4 < I_3 = 4.2\text{ kg}\cdot\text{m}^2$.
+- **Features:** Intermediate axis hyperbolic instability, Poinsot homoclinic separatrix, periodic 180° acrobatic flips under zero external torque ($\tau = 0$), exact energy and angular momentum conservation ($|\mathbf{L}| = 28.80\text{ N}\cdot\text{m}\cdot\text{s}$, $E_{rot} = 172.8\text{ J}$), and procedural microgravity reactive audio.
 
 ---
 

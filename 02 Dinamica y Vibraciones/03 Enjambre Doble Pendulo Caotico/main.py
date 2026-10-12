@@ -48,8 +48,11 @@ def export_benchmark():
     print(f"  -> {render_xlsx}")
 
 
-def render_scene(scene_name: str, target_video_name: str, target_cover_name: str, lang_label: str):
-    """Compila una versión de la animación vectorial 9:16 (1080x1920 @ 60 FPS) con Manim."""
+def render_scene(scene_name: str, target_video_name: str, target_cover_name: str, lang_label: str, audio_path: str):
+    """Compila una versión de la animación vectorial 9:16 (1080x1920 @ 60 FPS) con Manim y audio procedural."""
+    import imageio_ffmpeg
+    ffmpeg_bin = imageio_ffmpeg.get_ffmpeg_exe()
+
     video_dir = OUTPUT_DIR / "videos"
     cover_dir = OUTPUT_DIR / "cover"
     video_dir.mkdir(parents=True, exist_ok=True)
@@ -60,7 +63,8 @@ def render_scene(scene_name: str, target_video_name: str, target_cover_name: str
     target_mp4 = video_dir / target_video_name
     target_cover = cover_dir / target_cover_name
 
-    print(f"\n[CONTINUUM LAB] Compilando video ({lang_label}) 1080x1920 @ 60 FPS...")
+    temp_video_name = f"temp_{target_video_name}"
+    print(f"\n[+] Compilando video ({lang_label}) 1080x1920 @ 60 FPS...")
     cmd_video = [
         sys.executable,
         "-m",
@@ -71,7 +75,7 @@ def render_scene(scene_name: str, target_video_name: str, target_cover_name: str
         "--media_dir",
         str(cache_dir),
         "-o",
-        target_video_name,
+        temp_video_name,
     ]
 
     t0 = time.time()
@@ -82,16 +86,20 @@ def render_scene(scene_name: str, target_video_name: str, target_cover_name: str
         print(f"[ERROR] Manim falló para {scene_name} con código {res.returncode}")
         return False
 
-    # Mover video compilado
-    rendered_files = list(cache_dir.glob(f"**/{target_video_name}"))
+    rendered_files = list(cache_dir.glob(f"**/{temp_video_name}"))
     if rendered_files:
-        shutil.move(str(rendered_files[0]), str(target_mp4))
-        print(f"[SUCCESS] Video ({lang_label}) listo en {elapsed:.1f} s: {target_mp4}")
+        print(f"[+] Multiplexando audio + video -> {target_mp4}")
+        cmd_mux = [
+            ffmpeg_bin, "-y", "-i", str(rendered_files[0]), "-i", audio_path,
+            "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", "-shortest", str(target_mp4)
+        ]
+        subprocess.run(cmd_mux, check=True)
+        print(f"[SUCCESS] Video con audio listo en {elapsed:.1f} s: {target_mp4}")
     else:
-        print(f"[WARNING] No se encontró el video {target_video_name} en la caché.")
+        print(f"[WARNING] No se encontró el video {temp_video_name} en la caché.")
 
     # Generar Portada Estática en Alta Resolución
-    print(f"[CONTINUUM LAB] Generando portada ({lang_label}) en resolución nativa...")
+    print(f"[+] Generando portada ({lang_label}) en resolución nativa...")
     cmd_cover = [
         sys.executable,
         "-m",
@@ -126,12 +134,21 @@ def main():
 
     export_benchmark()
 
+    # 0. Sintetizar Audio Procedural Caótico (15.0s)
+    video_dir = OUTPUT_DIR / "videos"
+    video_dir.mkdir(parents=True, exist_ok=True)
+    audio_path = str(video_dir / "swarm_audio.wav")
+    from src.audio.swarm_audio_synth import synthesize_swarm_audio
+    print(f"\n[+] Sintetizando audio procedural del enjambre caótico (15.0s)...")
+    synthesize_swarm_audio(duration=15.0, fs=44100, output_path=audio_path)
+
     # 1. Render Español
     render_scene(
         scene_name="SwarmDoublePendulumSceneES",
         target_video_name="doble_pendulo_enjambre_caos_es_1080x1920.mp4",
         target_cover_name="cover_enjambre_caotico_es_1080x1920.png",
         lang_label="Español",
+        audio_path=audio_path,
     )
 
     # 2. Render Inglés
@@ -140,22 +157,21 @@ def main():
         target_video_name="double_pendulum_swarm_chaos_en_1080x1920.mp4",
         target_cover_name="cover_swarm_chaos_en_1080x1920.png",
         lang_label="English",
+        audio_path=audio_path,
     )
 
-    # Mantener alias doble_pendulo_enjambre_caos_1080x1920.mp4 apuntando a la versión en español
-    default_mp4 = OUTPUT_DIR / "videos" / "doble_pendulo_enjambre_caos_1080x1920.mp4"
-    es_mp4 = OUTPUT_DIR / "videos" / "doble_pendulo_enjambre_caos_es_1080x1920.mp4"
-    if es_mp4.exists():
-        shutil.copy2(str(es_mp4), str(default_mp4))
+    # Copiar con nombres estándar limpios
+    es_std = OUTPUT_DIR / "videos" / "Enjambre Doble Pendulo Caotico ES.mp4"
+    en_std = OUTPUT_DIR / "videos" / "Double Pendulum Chaotic Swarm EN.mp4"
+    es_src = OUTPUT_DIR / "videos" / "doble_pendulo_enjambre_caos_es_1080x1920.mp4"
+    en_src = OUTPUT_DIR / "videos" / "double_pendulum_swarm_chaos_en_1080x1920.mp4"
+    if es_src.exists():
+        shutil.copy2(str(es_src), str(es_std))
+    if en_src.exists():
+        shutil.copy2(str(en_src), str(en_std))
 
-    default_cover = OUTPUT_DIR / "cover" / "cover_enjambre_caotico_1080x1920.png"
-    es_cover = OUTPUT_DIR / "cover" / "cover_enjambre_caotico_es_1080x1920.png"
-    if es_cover.exists():
-        shutil.copy2(str(es_cover), str(default_cover))
-
-    print("\n" + "=" * 75)
-    print("PROCESO DUAL COMPLETADO EXITOSAMENTE (ES & EN)")
-    print("=" * 75)
+    if Path(audio_path).exists():
+        Path(audio_path).unlink()
 
 
 if __name__ == "__main__":

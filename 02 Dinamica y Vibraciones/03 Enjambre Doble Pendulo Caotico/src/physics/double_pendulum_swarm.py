@@ -205,3 +205,116 @@ class DoublePendulumSwarmSimulator:
             "lyapunov_curve": lyapunov_curve,
             "params": self.params,
         }
+
+    def run_two_phase_simulation(
+        self,
+        t_switch: float = 2.5,
+        delta_theta1: float = 2.0e-5,
+        delta_theta2: float = 2.0e-4,
+    ) -> Dict[str, Any]:
+        """
+        Simulación física en 2 fases (máxima retención y viralidad):
+          - Fase 1 (t in [0, t_switch]): Péndulo simple (1 solo péndulo determinista no caótico).
+          - Fase 2 (t in [t_switch, duration]): Acoplamiento del segundo péndulo con DOP853
+            generando el enjambre de 50 péndulos dobles y divergencia exponencial caótica.
+        """
+        n = self.params.num_pendulums
+        fps = self.params.fps
+        duration = self.params.duration
+        l1 = self.params.L1
+        l2 = self.params.L2
+        g = self.params.g
+
+        idx_switch = int(np.round(t_switch * fps))
+        t_all = self.t_eval
+        n_pts = len(t_all)
+
+        # 1. Integración Fase 1: Péndulo simple
+        def single_ode(t, y):
+            return [y[1], -(g / l1) * np.sin(y[0])]
+
+        t_eval1 = t_all[: idx_switch + 1]
+        sol1 = solve_ivp(
+            fun=single_ode,
+            t_span=(0.0, t_switch),
+            y0=[self.theta1_0, 0.0],
+            method="DOP853",
+            t_eval=t_eval1,
+            rtol=self.params.rtol,
+            atol=self.params.atol,
+        )
+        th1_phase1 = sol1.y[0]
+        w1_phase1 = sol1.y[1]
+
+        # 2. Integración Fase 2: Péndulo doble (N péndulos acoplados)
+        th1_end = th1_phase1[-1]
+        w1_end = w1_phase1[-1]
+
+        y0_phase2 = np.zeros((4, n), dtype=np.float64)
+        for k in range(n):
+            offset = (k - (n - 1) / 2.0)
+            y0_phase2[0, k] = th1_end + offset * delta_theta1
+            y0_phase2[1, k] = th1_end + offset * delta_theta2
+            y0_phase2[2, k] = w1_end
+            y0_phase2[3, k] = w1_end
+
+        t_eval2 = t_all[idx_switch:]
+        sol2 = solve_ivp(
+            fun=self._equations_of_motion,
+            t_span=(t_switch, duration),
+            y0=y0_phase2.ravel(),
+            method="DOP853",
+            t_eval=t_eval2,
+            rtol=self.params.rtol,
+            atol=self.params.atol,
+        )
+        y_sol2 = sol2.y.reshape(4, n, len(t_eval2))
+        th1_phase2 = y_sol2[0]
+        th2_phase2 = y_sol2[1]
+        w1_phase2 = y_sol2[2]
+        w2_phase2 = y_sol2[3]
+
+        # 3. Concatenación de arreglos globales (n, n_pts)
+        th1_full = np.zeros((n, n_pts), dtype=np.float64)
+        th2_full = np.zeros((n, n_pts), dtype=np.float64)
+        w1_full = np.zeros((n, n_pts), dtype=np.float64)
+        w2_full = np.zeros((n, n_pts), dtype=np.float64)
+
+        for k in range(n):
+            th1_full[k, :idx_switch] = th1_phase1[:-1]
+            th1_full[k, idx_switch:] = th1_phase2[k]
+            th2_full[k, :idx_switch] = th1_phase1[:-1]
+            th2_full[k, idx_switch:] = th2_phase2[k]
+            w1_full[k, :idx_switch] = w1_phase1[:-1]
+            w1_full[k, idx_switch:] = w1_phase2[k]
+            w2_full[k, :idx_switch] = w1_phase1[:-1]
+            w2_full[k, idx_switch:] = w2_phase2[k]
+
+        x1 = l1 * np.sin(th1_full)
+        y1 = -l1 * np.cos(th1_full)
+        x2 = x1 + l2 * np.sin(th2_full)
+        y2 = y1 - l2 * np.cos(th2_full)
+
+        # Métrica de separación espacial
+        r2_x_span = np.max(x2, axis=0) - np.min(x2, axis=0)
+        r2_y_span = np.max(y2, axis=0) - np.min(y2, axis=0)
+        swarm_span = np.sqrt(r2_x_span**2 + r2_y_span**2)
+        # En fase 1 la separación es infinitesimal
+        swarm_span[:idx_switch] = 0.00007
+
+        return {
+            "t": t_all,
+            "th1": th1_full,
+            "th2": th2_full,
+            "w1": w1_full,
+            "w2": w2_full,
+            "x1": x1,
+            "y1": y1,
+            "x2": x2,
+            "y2": y2,
+            "swarm_span": swarm_span,
+            "t_switch": t_switch,
+            "idx_switch": idx_switch,
+            "params": self.params,
+        }
+

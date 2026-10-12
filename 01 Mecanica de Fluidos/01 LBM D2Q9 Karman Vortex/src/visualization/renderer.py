@@ -94,7 +94,7 @@ class VisualRenderer:
         font_mono = cv2.FONT_HERSHEY_PLAIN
 
         # Header Title
-        cv2.putText(frame, "CONTINUUM LAB // LBM-D2Q9", (card_x0 + 18, card_y0 + 28), font_head, 0.55, (255, 255, 255), 1, cv2.LINE_AA)
+        cv2.putText(frame, "CALLE DE VORTICES // LBM-D2Q9", (card_x0 + 18, card_y0 + 28), font_head, 0.55, (255, 255, 255), 1, cv2.LINE_AA)
         cv2.putText(frame, "VORTEX DYNAMICS & TELEMETRY", (card_x0 + 18, card_y0 + 46), font_mono, 0.90, (140, 160, 180), 1, cv2.LINE_AA)
 
         # Horizontal accent rule
