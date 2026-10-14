@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using the metadata from this file."
+title: "Continuum-Lab: High-Performance GPU-Accelerated Computational Physics and Continuum Mechanics Suite"
+authors:
+  - family-names: "Pepe Sánchez"
+    given-names: "Roberto Andrés"
+    affiliation: "Universidad Técnica de Ambato"
+    email: "andrespepe014@gmail.com"
+version: "1.0.0"
+date-released: "2026-10-14"
+license: "MIT"
+repository-code: "https://github.com/RoPP17/Continuum-Lab"
+keywords:
+  - "computational-physics"
+  - "continuum-mechanics"
+  - "fluid-dynamics"
+  - "navier-stokes"
+  - "gpu-acceleration"
+  - "taichi-lang"
+  - "cuda"
+  - "scientific-computing"

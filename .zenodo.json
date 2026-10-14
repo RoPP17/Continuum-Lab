@@ -1,0 +1,23 @@
+{
+  "title": "Continuum-Lab: High-Performance GPU-Accelerated Computational Physics and Continuum Mechanics Suite",
+  "upload_type": "software",
+  "description": "Continuum-Lab is an open-source, mathematically rigorous, GPU-accelerated computational physics and continuum mechanics suite. Powered by Taichi Lang and CUDA, it simulates incompressible Navier-Stokes flows, chaotic dynamic systems, elastodynamics, and complex mathematical analysis with real-time hardware acceleration.",
+  "creators": [
+    {
+      "name": "Pepe Sánchez, Roberto Andrés",
+      "affiliation": "Universidad Técnica de Ambato"
+    }
+  ],
+  "access_right": "open",
+  "license": "MIT",
+  "keywords": [
+    "computational-physics",
+    "continuum-mechanics",
+    "fluid-dynamics",
+    "navier-stokes",
+    "gpu-acceleration",
+    "taichi-lang",
+    "cuda",
+    "scientific-computing"
+  ]
+}

@@ -1,4 +1,4 @@
-# CONTINUUM LAB — Senior Computational Physics & Visual Engineering Architecture
+﻿# CONTINUUM LAB — Senior Computational Physics & Visual Engineering Architecture
 
 <div align="center">
 
@@ -144,3 +144,23 @@ python run_tests.py
 - **Official Socials:**
   - Instagram: [@continuumlab_](https://www.instagram.com/continuumlab_/)
   - TikTok: [@continuum.lab](https://www.tiktok.com/@continuum.lab)
+
+---
+
+## 📚 Academic Citation & Research Software
+
+If you use **Continuum-Lab** in your academic research, university coursework, or engineering simulations, please cite it as:
+
+``bibtex
+@software{pepe_sanchez_2026_continuum_lab,
+  author       = {Pepe Sánchez, Roberto Andrés},
+  title        = {Continuum-Lab: High-Performance GPU-Accelerated Computational Physics and Continuum Mechanics Suite},
+  month        = oct,
+  year         = 2026,
+  publisher    = {Zenodo},
+  version      = {v1.0.0},
+  url          = {https://github.com/RoPP17/Continuum-Lab}
+}
+``
+
+You can also cite this project automatically through GitHub's **"Cite this repository"** button or via [CITATION.cff](./CITATION.cff).
