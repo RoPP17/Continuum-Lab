@@ -85,6 +85,10 @@ Continuum Lab/
 - **Physics:** Rigid-body Euler rotational equations with principal moments $I_1 = 1.0 < I_2 = 2.4 < I_3 = 4.2\text{ kg}\cdot\text{m}^2$.
 - **Features:** Intermediate axis hyperbolic instability, Poinsot homoclinic separatrix, periodic 180° acrobatic flips under zero external torque ($\tau = 0$), exact energy and angular momentum conservation ($|\mathbf{L}| = 28.80\text{ N}\cdot\text{m}\cdot\text{s}$, $E_{rot} = 172.8\text{ J}$), and procedural microgravity reactive audio.
 
+### 7. [Classical Mechanics: 3D Gyroscopic Precession & Nutation](02%20Dinamica%20y%20Vibraciones/03%20Precesion%20Giroscopica%203D)
+- **Physics:** Heavy symmetric top on a point pivot governed by Euler's rotational equations $\boldsymbol{\tau}_g = \mathbf{r}_{cm} \times (m\mathbf{g}) = \frac{d\mathbf{L}}{dt}$.
+- **Features:** 10,000 RPM high-speed rotor ($I_z = 0.04050\text{ kg}\cdot\text{m}^2$, $I_x = 0.17650\text{ kg}\cdot\text{m}^2$), torque-induced steady horizontal precession ($\Omega_p = 1.10\text{ rad/s}$), transient cycloidal nutation cusps ($\omega_n = 5.60\text{ rad/s}$), and 14.0s procedural turbine whine + nutation acoustic synthesis.
+
 ---
 
 ## 🎨 Visual Standard: Cybernetic HUD & Zero Text Overlap

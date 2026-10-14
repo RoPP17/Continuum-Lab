@@ -100,7 +100,34 @@ def render_videos(quality="qh"):
     if os.path.exists(temp_audio):
         os.remove(temp_audio)
     shutil.rmtree(str(cache_dir), ignore_errors=True)
-    print("\n[SUCCESS] Todos los videos del Giroscopio 3D (ES y EN con audio) fueron compilados exitosamente.")
+
+    # 2. Extract Hero Capture (1080x1920 PNG)
+    captures_dir = OUTPUT_DIR / "extra" / "capturas"
+    captures_dir.mkdir(parents=True, exist_ok=True)
+    hero_png = captures_dir / "gyroscope_hero.png"
+    en_video = VIDEOS_DIR / "Gyroscopic Precession 3D EN.mp4"
+    if en_video.exists():
+        print(f"\n[+] Extrayendo captura hero UHD 1080x1920 -> {hero_png}")
+        cmd_cap = [
+            ffmpeg_bin, "-y", "-ss", "00:00:04.500", "-i", str(en_video),
+            "-vframes", "1", "-q:v", "2", str(hero_png)
+        ]
+        subprocess.run(cmd_cap, check=True)
+
+    # 3. Dynamic Excel Benchmark Generation
+    try:
+        from src.export_excel_benchmark import generate_benchmark
+        bench_dir = OUTPUT_DIR / "extra" / "benchmarks"
+        bench_dir.mkdir(parents=True, exist_ok=True)
+        bench_path = bench_dir / "Precesion_Giroscopica_Ecuaciones_Euler.xlsx"
+        print(f"\n[+] Generando benchmark dinámico Excel -> {bench_path.name}")
+        generate_benchmark(bench_path)
+        legacy_bench = OUTPUT_DIR / "benchmarks" / "Precesion_Giroscopica_Ecuaciones_Euler.xlsx"
+        generate_benchmark(legacy_bench)
+    except Exception as e:
+        print(f"[WARNING] Benchmark generation issue: {e}")
+
+    print("\n[SUCCESS] Todos los videos del Giroscopio 3D (ES y EN con audio, capturas y benchmark) fueron compilados exitosamente.")
     return True
 
 
@@ -120,6 +147,7 @@ def main():
     parser.add_argument("--render", action="store_true", help="Render ultra-HD 9:16 vertical videos at 60 FPS")
     parser.add_argument("--preview", action="store_true", help="Fast preview render")
     parser.add_argument("--test", action="store_true", help="Run validation tests")
+    parser.add_argument("--benchmark", action="store_true", help="Generate Excel benchmark only")
     parser.add_argument("--info", action="store_true", help="Show physics breakdown")
 
     args = parser.parse_args()
@@ -128,6 +156,10 @@ def main():
         render_videos(quality="qh")
     elif args.preview:
         render_videos(quality="ql")
+    elif args.benchmark:
+        from src.export_excel_benchmark import generate_benchmark
+        bench_path = OUTPUT_DIR / "extra" / "benchmarks" / "Precesion_Giroscopica_Ecuaciones_Euler.xlsx"
+        generate_benchmark(bench_path)
     elif args.test:
         run_tests()
     else:
