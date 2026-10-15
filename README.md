@@ -1,4 +1,4 @@
-﻿# CONTINUUM LAB — Senior Computational Physics & Visual Engineering Architecture
+# CONTINUUM LAB — Senior Computational Physics & Visual Engineering Architecture
 
 <div align="center">
 
@@ -37,7 +37,8 @@ Continuum Lab/
 │   └── 01 LBM D2Q9 Karman Vortex/           # LBM D2Q9 shedding, moving cylinder & reactive audio
 ├── 02 Dinamica y Vibraciones/               # Non-linear dynamics, chaos & multi-body mechanics
 │   ├── 01 Pendulo Triple Caotico/           # 6-DOF Lagrangian integrator & FM reactive synthesis
-│   └── 04 Efecto Dzhanibekov 3D/            # Euler intermediate axis instability & Tennis Racket theorem
+│   ├── 04 Efecto Dzhanibekov 3D/            # Euler intermediate axis instability & Tennis Racket theorem
+│   └── 05 Mecanismo Peaucellier Lipkin/     # 1864 exact straight line, complex inversion & zero error
 ├── 04 Termodinamica y Calor/                # Thermodynamics, conduction, heat diffusion & entropy
 │   └── 01 Ley Cero de la Termodinamica 3 Cuerpos/ # Multi-material 3-body conduction, Zeroth law proof
 ├── 06 Matematicas y Geometria/              # Pure & applied mathematics, geometry, complex analysis
@@ -88,6 +89,10 @@ Continuum Lab/
 ### 7. [Classical Mechanics: 3D Gyroscopic Precession & Nutation](02%20Dinamica%20y%20Vibraciones/03%20Precesion%20Giroscopica%203D)
 - **Physics:** Heavy symmetric top on a point pivot governed by Euler's rotational equations $\boldsymbol{\tau}_g = \mathbf{r}_{cm} \times (m\mathbf{g}) = \frac{d\mathbf{L}}{dt}$.
 - **Features:** 10,000 RPM high-speed rotor ($I_z = 0.04050\text{ kg}\cdot\text{m}^2$, $I_x = 0.17650\text{ kg}\cdot\text{m}^2$), torque-induced steady horizontal precession ($\Omega_p = 1.10\text{ rad/s}$), transient cycloidal nutation cusps ($\omega_n = 5.60\text{ rad/s}$), and 14.0s procedural turbine whine + nutation acoustic synthesis.
+
+### 8. [Kinematics & Machine Theory: Peaucellier-Lipkin Exact Straight-Line Mechanism](02%20Dinamica%20y%20Vibraciones/05%20Mecanismo%20Peaucellier%20Lipkin)
+- **Physics:** Planar inversion geometry in the complex plane: $OP \cdot OP' = R^2 - l^2 = k = 5.28\text{ cm}^2$.
+- **Features:** 8-bar linkage (7 moving links + 1 ground) with zero sliding guides, converts circular crank rotation of $P$ into a mathematically exact Euclidean straight line traced by $P'$ ($x = 1.1059\text{ cm}$), zero linear deviation ($\varepsilon = 0.00000000\text{ mm}$), strict mobile safe-zone HUD, and procedural mechanical linkage + laser crystallization audio @ 60 FPS.
 
 ---
 
