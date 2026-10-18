@@ -21,6 +21,7 @@ TEST_SUITES = [
     PROJECT_ROOT / "02 Dinamica y Vibraciones" / "04 Efecto Dzhanibekov 3D" / "tests",
     PROJECT_ROOT / "02 Dinamica y Vibraciones" / "04 Flutter Aeroelastico Tacoma Narrows" / "tests",
     PROJECT_ROOT / "02 Dinamica y Vibraciones" / "05 Mecanismo Peaucellier Lipkin" / "tests",
+    PROJECT_ROOT / "03 Mecanica de Solidos" / "01 Placas de Chladni y Resonancia Acustica" / "tests",
     PROJECT_ROOT / "04 Termodinamica y Calor" / "01 Ley Cero de la Termodinamica 3 Cuerpos" / "tests",
     PROJECT_ROOT / "06 Matematicas y Geometria" / "01 Series de Fourier Geometricas" / "tests",
     PROJECT_ROOT / "06 Matematicas y Geometria" / "02 Identidad de Euler 3D" / "tests",

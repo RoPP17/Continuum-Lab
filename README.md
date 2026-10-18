@@ -39,6 +39,8 @@ Continuum Lab/
 │   ├── 01 Pendulo Triple Caotico/           # 6-DOF Lagrangian integrator & FM reactive synthesis
 │   ├── 04 Efecto Dzhanibekov 3D/            # Euler intermediate axis instability & Tennis Racket theorem
 │   └── 05 Mecanismo Peaucellier Lipkin/     # 1864 exact straight line, complex inversion & zero error
+├── 03 Mecanica de Solidos/                  # Elasticity, plate theory & structural dynamics
+│   └── 01 Placas de Chladni y Resonancia Acustica/ # Kirchhoff-Love biharmonic elastodynamics & 15,000 granular particles
 ├── 04 Termodinamica y Calor/                # Thermodynamics, conduction, heat diffusion & entropy
 │   └── 01 Ley Cero de la Termodinamica 3 Cuerpos/ # Multi-material 3-body conduction, Zeroth law proof
 ├── 06 Matematicas y Geometria/              # Pure & applied mathematics, geometry, complex analysis
@@ -93,6 +95,10 @@ Continuum Lab/
 ### 8. [Kinematics & Machine Theory: Peaucellier-Lipkin Exact Straight-Line Mechanism](02%20Dinamica%20y%20Vibraciones/05%20Mecanismo%20Peaucellier%20Lipkin)
 - **Physics:** Planar inversion geometry in the complex plane: $OP \cdot OP' = R^2 - l^2 = k = 5.28\text{ cm}^2$.
 - **Features:** 8-bar linkage (7 moving links + 1 ground) with zero sliding guides, converts circular crank rotation of $P$ into a mathematically exact Euclidean straight line traced by $P'$ ($x = 1.1059\text{ cm}$), zero linear deviation ($\varepsilon = 0.00000000\text{ mm}$), strict mobile safe-zone HUD, and procedural mechanical linkage + laser crystallization audio @ 60 FPS.
+
+### 9. [Solid Mechanics: Chladni Plate Cymatics & Kirchhoff-Love Elastodynamics](03%20Mecanica%20de%20Solidos/01%20Placas%20de%20Chladni%20y%20Resonancia%20Acustica)
+- **Physics:** 4th-order biharmonic plate equation $D \nabla^4 w + \rho h \frac{\partial^2 w}{\partial t^2} = 0$, bending rigidity $D = \frac{E h^3}{12(1-\nu^2)}$.
+- **Features:** Modal sweep from Mode $(1, 3)$ ($432\text{ Hz}$) to Mode $(5, 5)$ ($4320\text{ Hz}$), acoustic radiation pressure driving 15,000 Lagrangian particles strictly towards zero-displacement nodal lines $w(x, y) = 0$, dynamic Excel trade study across Titanium Gr5, SS 304, Al 6061-T6, and procedural 44.1 kHz stereo resonance soundtrack.
 
 ---
 
