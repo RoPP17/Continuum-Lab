@@ -38,7 +38,8 @@ Continuum Lab/
 ├── 02 Dinamica y Vibraciones/               # Non-linear dynamics, chaos & multi-body mechanics
 │   ├── 01 Pendulo Triple Caotico/           # 6-DOF Lagrangian integrator & FM reactive synthesis
 │   ├── 04 Efecto Dzhanibekov 3D/            # Euler intermediate axis instability & Tennis Racket theorem
-│   └── 05 Mecanismo Peaucellier Lipkin/     # 1864 exact straight line, complex inversion & zero error
+│   ├── 05 Mecanismo Peaucellier Lipkin/     # 1864 exact straight line, complex inversion & zero error
+│   └── 06 Problema de los Tres Cuerpos Caotico/ # Moore-Chenciner figure-8, non-integrability, chaos & rogue star ejection
 ├── 03 Mecanica de Solidos/                  # Elasticity, plate theory & structural dynamics
 │   └── 01 Placas de Chladni y Resonancia Acustica/ # Kirchhoff-Love biharmonic elastodynamics & 15,000 granular particles
 ├── 04 Termodinamica y Calor/                # Thermodynamics, conduction, heat diffusion & entropy
@@ -99,6 +100,10 @@ Continuum Lab/
 ### 9. [Solid Mechanics: Chladni Plate Cymatics & Kirchhoff-Love Elastodynamics](03%20Mecanica%20de%20Solidos/01%20Placas%20de%20Chladni%20y%20Resonancia%20Acustica)
 - **Physics:** 4th-order biharmonic plate equation $D \nabla^4 w + \rho h \frac{\partial^2 w}{\partial t^2} = 0$, bending rigidity $D = \frac{E h^3}{12(1-\nu^2)}$.
 - **Features:** Modal sweep from Mode $(1, 3)$ ($432\text{ Hz}$) to Mode $(5, 5)$ ($4320\text{ Hz}$), acoustic radiation pressure driving 15,000 Lagrangian particles strictly towards zero-displacement nodal lines $w(x, y) = 0$, dynamic Excel trade study across Titanium Gr5, SS 304, Al 6061-T6, and procedural 44.1 kHz stereo resonance soundtrack.
+
+### 10. [Chaos & Celestial Mechanics: The Gravitational Three-Body Problem](02%20Dinamica%20y%20Vibraciones/06%20Problema%20de%20los%20Tres%20Cuerpos%20Caotico)
+- **Physics:** Newtonian 3-body gravitational interaction $\mathbf{F}_i = \sum_{j \neq i} G \frac{m_i m_j}{|\mathbf{r}_j - \mathbf{r}_i|^3}(\mathbf{r}_j - \mathbf{r}_i)$, Poincaré non-integrability, and Hamiltonian conservation $E = T + V = \text{const}$.
+- **Features:** Moore-Chenciner (2000) Figure-8 periodic choreography, micro-perturbation ($\Delta r = 10^{-4}$) triggering Lyapunov exponential divergence, dynamic gravitational force vector lasers, hyper-velocity slingshot encounters, and escape velocity ejection of an interstellar rogue star @ 60 FPS.
 
 ---
 
