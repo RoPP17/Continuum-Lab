@@ -39,7 +39,8 @@ Continuum Lab/
 │   ├── 01 Pendulo Triple Caotico/           # 6-DOF Lagrangian integrator & FM reactive synthesis
 │   ├── 04 Efecto Dzhanibekov 3D/            # Euler intermediate axis instability & Tennis Racket theorem
 │   ├── 05 Mecanismo Peaucellier Lipkin/     # 1864 exact straight line, complex inversion & zero error
-│   └── 06 Problema de los Tres Cuerpos Caotico/ # Moore-Chenciner figure-8, non-integrability, chaos & rogue star ejection
+│   ├── 06 Problema de los Tres Cuerpos Caotico/ # Moore-Chenciner figure-8, non-integrability, chaos & rogue star ejection
+│   └── 07 Atractor de Lorenz y Efecto Mariposa 3D/ # 1963 atmospheric convection chaos, Liouville contraction & D_KY=2.0621
 ├── 03 Mecanica de Solidos/                  # Elasticity, plate theory & structural dynamics
 │   └── 01 Placas de Chladni y Resonancia Acustica/ # Kirchhoff-Love biharmonic elastodynamics & 15,000 granular particles
 ├── 04 Termodinamica y Calor/                # Thermodynamics, conduction, heat diffusion & entropy
@@ -104,6 +105,10 @@ Continuum Lab/
 ### 10. [Chaos & Celestial Mechanics: The Gravitational Three-Body Problem](02%20Dinamica%20y%20Vibraciones/06%20Problema%20de%20los%20Tres%20Cuerpos%20Caotico)
 - **Physics:** Newtonian 3-body gravitational interaction $\mathbf{F}_i = \sum_{j \neq i} G \frac{m_i m_j}{|\mathbf{r}_j - \mathbf{r}_i|^3}(\mathbf{r}_j - \mathbf{r}_i)$, Poincaré non-integrability, and Hamiltonian conservation $E = T + V = \text{const}$.
 - **Features:** Moore-Chenciner (2000) Figure-8 periodic choreography, micro-perturbation ($\Delta r = 10^{-4}$) triggering Lyapunov exponential divergence, dynamic gravitational force vector lasers, hyper-velocity slingshot encounters, and escape velocity ejection of an interstellar rogue star @ 60 FPS.
+
+### 11. [Non-Linear Chaos Theory: 3D Lorenz Strange Attractor & The Butterfly Effect (1963)](02%20Dinamica%20y%20Vibraciones/07%20Atractor%20de%20Lorenz%20y%20Efecto%20Mariposa%203D)
+- **Physics:** Edward N. Lorenz's 1963 thermal convection system ($\dot{x} = \sigma(y-x)$, $\dot{y} = x(\rho-z)-y$, $\dot{z} = xy-\beta z$) with $\sigma = 10, \rho = 28, \beta = 8/3$, Liouville phase-space contraction $\nabla \cdot \mathbf{F} = -41/3 \approx -13.67\text{ s}^{-1}$, and Kaplan-Yorke fractal dimension $D_{KY} = 2.0621$.
+- **Features:** Twin micro-perturbed orbits ($\Delta_0 = 10^{-4}$ reproducing Lorenz's Royal McBee rounding truncation) plus a 60-particle golden ensemble, 3D perspective camera rotation, live Lorenz $x(t)$ dual-waveform oscilloscope, and binaural stereo FM sound synthesis @ 60 FPS.
 
 ---
 
