@@ -34,7 +34,8 @@ Every experiment is fully decoupled, mathematically verified, and organized with
 ```text
 Continuum Lab/
 ├── 01 Mecanica de Fluidos/                  # Fluid dynamics, aerodynamics, mesoscopic kinetics
-│   └── 01 LBM D2Q9 Karman Vortex/           # LBM D2Q9 shedding, moving cylinder & reactive audio
+│   ├── 01 LBM D2Q9 Karman Vortex/           # LBM D2Q9 shedding, moving cylinder & reactive audio
+│   └── 05 Efecto Magnus y Rotor Flettner/   # Kutta-Joukowski lift, stagnation bifurcation & Flettner ship
 ├── 02 Dinamica y Vibraciones/               # Non-linear dynamics, chaos & multi-body mechanics
 │   ├── 01 Pendulo Triple Caotico/           # 6-DOF Lagrangian integrator & FM reactive synthesis
 │   ├── 04 Efecto Dzhanibekov 3D/            # Euler intermediate axis instability & Tennis Racket theorem
@@ -109,6 +110,10 @@ Continuum Lab/
 ### 11. [Non-Linear Chaos Theory: 3D Lorenz Strange Attractor & The Butterfly Effect (1963)](02%20Dinamica%20y%20Vibraciones/07%20Atractor%20de%20Lorenz%20y%20Efecto%20Mariposa%203D)
 - **Physics:** Edward N. Lorenz's 1963 thermal convection system ($\dot{x} = \sigma(y-x)$, $\dot{y} = x(\rho-z)-y$, $\dot{z} = xy-\beta z$) with $\sigma = 10, \rho = 28, \beta = 8/3$, Liouville phase-space contraction $\nabla \cdot \mathbf{F} = -41/3 \approx -13.67\text{ s}^{-1}$, and Kaplan-Yorke fractal dimension $D_{KY} = 2.0621$.
 - **Features:** Twin micro-perturbed orbits ($\Delta_0 = 10^{-4}$ reproducing Lorenz's Royal McBee rounding truncation) plus a 60-particle golden ensemble, 3D perspective camera rotation, live Lorenz $x(t)$ dual-waveform oscilloscope, and binaural stereo FM sound synthesis @ 60 FPS.
+
+### 12. [Fluid Dynamics & Aerodynamics: The Magnus Effect & Flettner Rotor](01%20Mecanica%20de%20Fluidos/05%20Efecto%20Magnus%20y%20Rotor%20Flettner)
+- **Physics:** Potential flow with circulation $w(z) = U_\infty(z + R^2/z) - \frac{i\Gamma}{2\pi}\ln(z/R)$, Kutta-Joukowski Lift Theorem $L' = \rho_\infty U_\infty \Gamma$, and stagnation point topological bifurcation from surface dual points ($\alpha < 2$) to detached hyperbolic saddle point ($\alpha > 2$).
+- **Features:** 2,400 velocity-colored particle tracers, rotating cylinder with dynamic spokes and boundary layer slip, live surface pressure $C_p(\theta)$ polar oscilloscope, industrial fuel-saving benchmark for a 50,000 DWT Flettner bulk carrier, and procedural wind + motor whine stereo audio @ 60 FPS.
 
 ---
 
