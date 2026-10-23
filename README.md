@@ -9,7 +9,7 @@
 [![Python 3.12+](https://img.shields.io/badge/Python-3.12%2B-blue.svg?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![NVIDIA CUDA](https://img.shields.io/badge/GPU%20Acceleration-NVIDIA%20RTX%205070-76B900.svg?style=for-the-badge&logo=nvidia&logoColor=white)](https://www.nvidia.com/)
 [![Taichi Lang](https://img.shields.io/badge/JIT%20Compiler-Taichi%20Lang-FF4500.svg?style=for-the-badge)](https://www.taichi-lang.org/)
-[![Tests](https://img.shields.io/badge/Tests-20%2F20%20Passing-brightgreen.svg?style=for-the-badge&logo=pytest&logoColor=white)](run_tests.py)
+[![Tests](https://img.shields.io/badge/Tests-21%2F21%20Passing-brightgreen.svg?style=for-the-badge&logo=pytest&logoColor=white)](run_tests.py)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
 
 <br/>
@@ -35,7 +35,8 @@ Every experiment is fully decoupled, mathematically verified, and organized with
 Continuum Lab/
 ├── 01 Mecanica de Fluidos/                  # Fluid dynamics, aerodynamics, mesoscopic kinetics
 │   ├── 01 LBM D2Q9 Karman Vortex/           # LBM D2Q9 shedding, moving cylinder & reactive audio
-│   └── 05 Efecto Magnus y Rotor Flettner/   # Kutta-Joukowski lift, stagnation bifurcation & Flettner ship
+│   ├── 05 Efecto Magnus y Rotor Flettner/   # Kutta-Joukowski lift, stagnation bifurcation & Flettner ship
+│   └── 06 Inestabilidad Rayleigh Taylor/   # Baroclinic vorticity torque, mushroom plumes & Dimonte mixing law
 ├── 02 Dinamica y Vibraciones/               # Non-linear dynamics, chaos & multi-body mechanics
 │   ├── 01 Pendulo Triple Caotico/           # 6-DOF Lagrangian integrator & FM reactive synthesis
 │   ├── 04 Efecto Dzhanibekov 3D/            # Euler intermediate axis instability & Tennis Racket theorem
@@ -114,6 +115,10 @@ Continuum Lab/
 ### 12. [Fluid Dynamics & Aerodynamics: The Magnus Effect & Flettner Rotor](01%20Mecanica%20de%20Fluidos/05%20Efecto%20Magnus%20y%20Rotor%20Flettner)
 - **Physics:** Potential flow with circulation $w(z) = U_\infty(z + R^2/z) - \frac{i\Gamma}{2\pi}\ln(z/R)$, Kutta-Joukowski Lift Theorem $L' = \rho_\infty U_\infty \Gamma$, and stagnation point topological bifurcation from surface dual points ($\alpha < 2$) to detached hyperbolic saddle point ($\alpha > 2$).
 - **Features:** 2,400 velocity-colored particle tracers, rotating cylinder with dynamic spokes and boundary layer slip, live surface pressure $C_p(\theta)$ polar oscilloscope, industrial fuel-saving benchmark for a 50,000 DWT Flettner bulk carrier, and procedural wind + motor whine stereo audio @ 60 FPS.
+
+### 13. [Fluid Dynamics: Rayleigh-Taylor Instability & Gravitational Mushroom Plumes](01%20Mecanica%20de%20Fluidos/06%20Inestabilidad%20Rayleigh%20Taylor)
+- **Physics:** Incompressible Navier-Stokes with baroclinic vorticity $\frac{\partial\omega}{\partial t} + (\mathbf{u}\cdot\nabla)\omega = -2Ag\frac{\partial C}{\partial x} + \nu\nabla^2\omega$, Atwood number $A = 0.50$, Chandrasekhar capillary cutoff $k_c$, and Dimonte-Schneider self-similar mixing $h(t) \approx \alpha A g t^2$.
+- **Features:** Baroclinic vortex dipole generation, secondary Kelvin-Helmholtz mushroom plume roll-up, 600 Lagrangian interfacial tracers, live energy/mixing oscilloscope, dynamic Excel benchmark suite, and procedural sub-bass + celesta audio @ 60 FPS.
 
 ---
 

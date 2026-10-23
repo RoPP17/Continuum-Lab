@@ -14,6 +14,7 @@ TEST_SUITES = [
     PROJECT_ROOT / "01 Mecanica de Fluidos" / "03 Desprendimiento Capa Limite y Stall Aerodinamico" / "tests",
     PROJECT_ROOT / "01 Mecanica de Fluidos" / "04 Inestabilidad Kelvin Helmholtz" / "tests",
     PROJECT_ROOT / "01 Mecanica de Fluidos" / "05 Efecto Magnus y Rotor Flettner" / "tests",
+    PROJECT_ROOT / "01 Mecanica de Fluidos" / "06 Inestabilidad Rayleigh Taylor" / "tests",
     PROJECT_ROOT / "02 Dinamica y Vibraciones" / "01 Pendulo Triple Caotico" / "tests",
     PROJECT_ROOT / "02 Dinamica y Vibraciones" / "02 Mecanismo Coriolis Collarin" / "tests",
     PROJECT_ROOT / "02 Dinamica y Vibraciones" / "03 Enjambre Doble Pendulo Caotico" / "tests",
