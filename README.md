@@ -120,6 +120,18 @@ Continuum Lab/
 - **Physics:** Incompressible Navier-Stokes with baroclinic vorticity $\frac{\partial\omega}{\partial t} + (\mathbf{u}\cdot\nabla)\omega = -2Ag\frac{\partial C}{\partial x} + \nu\nabla^2\omega$, Atwood number $A = 0.50$, Chandrasekhar capillary cutoff $k_c$, and Dimonte-Schneider self-similar mixing $h(t) \approx \alpha A g t^2$.
 - **Features:** Baroclinic vortex dipole generation, secondary Kelvin-Helmholtz mushroom plume roll-up, 600 Lagrangian interfacial tracers, live energy/mixing oscilloscope, dynamic Excel benchmark suite, and procedural sub-bass + celesta audio @ 60 FPS.
 
+### 14. [Non-Linear Solid Mechanics: The Euler Elastica & Pitchfork Bifurcation (1744)](03%20Mecanica%20de%20Solidos/02%20Pandeo%20No%20Lineal%20y%20Elastica%20de%20Euler)
+- **Physics:** Exact non-linear elastica ODE $EI \frac{d^2\theta}{ds^2} + P \sin\theta = 0$, complete elliptic integrals $K(k)$, and supercritical pitchfork bifurcation at Euler critical load $P_{cr} = \frac{\pi^2 EI}{L^2}$.
+- **Features:** Pinned-pinned vertical column with live hydraulic actuator, post-buckling large elastica deformation curves, dynamic bending moment curvature combs ($M = EI\kappa$), bifurcation phase diagram, and procedural mechanical tension + D-minor9 resonance audio @ 60 FPS.
+
+### 15. [Fluid Dynamics & Turbulence: Topological Vortex Reconnection & Widnall Instability](01%20Mecanica%20de%20Fluidos/07%20Colision%20de%20Anillos%20de%20Vortice)
+- **Physics:** 3D Biot-Savart mutual induction, vortex core stretching with enstrophy conservation $V = 2\pi^2 R a^2 = \text{const}$, Widnall azimuthal core buckling ($m = 12$), and Navier-Stokes topological reconnection into secondary baby vortex rings.
+- **Features:** 3D perspective camera (24° elevation tilt), head-on collision of dual counter-rotating vortex tori, explosive radial starburst crown reconnection, 1,200 Lagrangian particle tracers, Widnall modal spectrum radar, and 12-bell circularly panned celesta audio @ 60 FPS.
+
+### 16. [Fluid Dynamics & Extreme Thermodynamics: Cavitation Collapse & Sonoluminescence (Star in a Jar)](01%20Mecanica%20de%20Fluidos/08%20Colapso%20de%20Cavitacion%20y%20Sonoluminiscencia)
+- **Physics:** Rayleigh-Plesset & Keller-Miksis non-linear acoustic radiation ODE, adiabatic van der Waals core compression ($V_0/V_{min} \approx 8,000$), thermal Bremsstrahlung plasma flash ($T > 18,500\text{ K}$, $P > 65,000\text{ atm}$), Kirkwood-Bethe spherical shockwaves ($>16,000\text{ bar}$), and asymmetric supersonic liquid micro-jet ($v_{jet} = 1,050\text{ m/s}$).
+- **Features:** 3D perspective bubble mesh with Fresnel rim shading and van der Waals core, blinding anamorphic lens flare and plasma bloom, supersonic refractive shock rings, 800+ convergent tracer particles, dual glassmorphic telemetry cards, and multi-layer procedural sub-bass + picosecond crystal ping audio @ 60 FPS.
+
 ---
 
 ## 🎨 Visual Standard: Cybernetic HUD & Zero Text Overlap
