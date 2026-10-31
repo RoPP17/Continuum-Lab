@@ -31,3 +31,16 @@ En cualquier desarrollo, ejercicio, módulo o entrega dentro de **Continuum-Lab*
 ## 5. Estética Cinematográfica y Personalidad Visual
 - **Superación del monocromatismo robótico:** Sustituir el cian neón plano por las 4 Armonías Atmosféricas de Estudio (Solar Incandescent, Oceanic Bioluminescence, Quantum Indigo, Kinetic Editorial), iluminación con viñetas radiales y tarjetas *frosted glass* con sombras suaves.
 - **Eficiencia de Render:** Modelos analítico-numéricos vectorizados para ejecución y renderizado fluido (<60-90 segundos a 60 FPS).
+
+## 6. Encuadre Físico Completo (Toda la Geometría Dentro de Pantalla)
+- **Cero cortes de elementos físicos:** En ningún proyecto se debe cortar la tobera, cilindro, péndulo o aparato fuera de los bordes superior o laterales del lienzo.
+- **Zona activa y margen de respiro:** Toda la estructura física y sus puntos de anclaje deben quedar completamente dentro de la zona activa ($Y \in [370, 1500]$, $X \in [70, 1010]$), guardando al menos 25-35 px de separación respecto a las tarjetas HUD superiores.
+
+## 7. Diseño Sonoro Llamativo de Alto Impacto (Apto para Música de Fondo)
+- **Sonidos atractivos y contundentes:** Cero ruidos monótonos o apagados. Incorporar transientes de impacto nítidos (ataque rápido), subgraves viscerales modulados (`np.tanh`), barridos estéreo (*whooshes*) reactivos y campanillas/resonancias agudas en picos físicos.
+- **Espacio para música de fondo (*Headroom*):** Ecualización limpia con vaciado del rango medio para permitir incorporar música de fondo sin ensuciar la mezcla.
+
+## 8. Máxima Limpieza Visual e Interlineado Generoso (Prioridad de Aire sobre Saturación)
+- **Preferir limpieza y espacio a exceso de información:** Es preferible mostrar **2 o 3 métricas clave** con amplio interlineado y diseño espacioso, antes que 5 líneas apretadas.
+- **Interlineado vertical amplio:** Separación generosa entre renglones (mínimo 34 a 42 px entre filas de fórmulas TeX).
+- **Cero solapamientos o sensación de amontonamiento:** Las tarjetas deben respirar, con márgenes interiores amplios (padding $\ge 20$ px) y jerarquía clara.
