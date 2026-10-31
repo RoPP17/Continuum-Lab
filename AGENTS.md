@@ -23,3 +23,11 @@ En cualquier desarrollo, ejercicio, módulo o entrega dentro de **Continuum-Lab*
   - `05 Metodos Numericos y CAE/`
   - `06 Matematicas y Geometria/`
 - Los archivos renderizados finales (`.mp4`, `.gif`, `.png`) deben exportarse y guardarse en `RENDERS/` o en la carpeta designada del módulo sin dispersión de archivos.
+
+## 4. Tipografía Matemática TeX y Cero Guiones Bajos (`_`)
+- **Prohibición de código crudo en pantalla:** En ninguna animación o tarjeta HUD se deben mostrar nombres de variables con guiones bajos (`T_core`, `p_0`, `M_exit`, `L_d`) ni expresiones en pseudocódigo (`sqrt(...)`, `pe / pa`).
+- **Renderizado tipográfico auténtico:** Toda métrica, subíndice o fórmula debe renderizarse con tipografía matemática TeX real ($T_{\mathrm{core}}$, $p_0$, $M_e$, $L_d$, $\theta$, $\beta$, $\nu$) mediante el motor de [`skill_continuum_cinematic_video`](Skills%20e%20Instrucciones/skill_continuum_cinematic_video/SKILL.md) o Manim `MathTex`.
+
+## 5. Estética Cinematográfica y Personalidad Visual
+- **Superación del monocromatismo robótico:** Sustituir el cian neón plano por las 4 Armonías Atmosféricas de Estudio (Solar Incandescent, Oceanic Bioluminescence, Quantum Indigo, Kinetic Editorial), iluminación con viñetas radiales y tarjetas *frosted glass* con sombras suaves.
+- **Eficiencia de Render:** Modelos analítico-numéricos vectorizados para ejecución y renderizado fluido (<60-90 segundos a 60 FPS).

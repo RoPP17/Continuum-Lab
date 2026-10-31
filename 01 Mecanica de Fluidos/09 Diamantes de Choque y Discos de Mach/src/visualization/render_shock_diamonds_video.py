@@ -3,15 +3,14 @@ Continuum Lab - Master 9:16 UHD 60 FPS Visual Video Renderer for Supersonic Shoc
 Module: 01 Mecanica de Fluidos / 09 Diamantes de Choque y Discos de Mach
 File: src/visualization/render_shock_diamonds_video.py
 
-Renders 1080x1920 (9:16 Vertical UHD @ 60 FPS) cinematic animations:
-  - Deep Aerospace Void (#030712 / #050B1A) with telemetry grid
-  - Detailed de Laval Rocket Nozzle Bell with glowing combustion throat
-  - 2D Supersonic Jet Plume with Schlieren refractive density gradients
-  - Multi-stage Incandescent Shock Diamond Bloom (Prandtl-Meyer fans + Oblique Shocks)
+Standardized Cinematic Production Engine:
+  - Theme: THEME_SOLAR (Cosmic Gold & Aerospace Amber)
+  - Zero Raw Underscores ('_') - 100% True LaTeX Mathematical Telemetry
+  - Mobile Safe Zones (TikTok / Reels / Shorts 9:16 @ 60 FPS)
+  - High-performance cached alpha blending & zero PIL roundtrip overhead
+  - Deep space cinematic vignette with engineering grid & Lagrangian tracer particles
+  - Multi-stage Incandescent Shock Diamond Bloom (Prandtl-Meyer + Oblique Shocks)
   - Blinding Mach Disk normal shock hotspots with radical reignition (T > 2,850 K)
-  - 1000+ Supersonic Lagrangian velocity streak tracer particles
-  - Dual Glassmorphic Cyber HUD cards (Chamber Telemetry & Shock Dynamics)
-  - Mobile safe-zone compliant kinetic typography in Spanish (ES) and English (EN)
   - 16.0s seamless infinite loop architecture
 """
 
@@ -24,17 +23,27 @@ from pathlib import Path
 from typing import Optional, List, Tuple, Dict, Any
 import numpy as np
 import cv2
-from PIL import Image, ImageDraw, ImageFont
 
 current_dir = Path(__file__).resolve().parent
 module_dir = current_dir.parent.parent
 project_dir = module_dir.parent.parent
+skills_dir = project_dir / "Skills e Instrucciones" / "skill_continuum_cinematic_video"
+
 if str(module_dir) not in sys.path:
     sys.path.insert(0, str(module_dir))
 if str(project_dir) not in sys.path:
     sys.path.insert(0, str(project_dir))
+if str(skills_dir) not in sys.path:
+    sys.path.insert(0, str(skills_dir))
 
 from src.physics.shock_diamonds_sim import ShockDiamondsSim
+from core import (
+    THEME_SOLAR,
+    CinematicHUDManager,
+    draw_cinematic_background,
+    draw_frosted_card,
+    draw_latex,
+)
 
 
 class MasterShockDiamondsRenderer:
@@ -49,7 +58,8 @@ class MasterShockDiamondsRenderer:
         self.lang = lang.upper()
 
         self.sim = ShockDiamondsSim()
-        self._load_fonts()
+        self.theme = THEME_SOLAR
+        self.hud = CinematicHUDManager(width=self.width, height=self.height, theme=self.theme)
 
         # Jet Geometry on Canvas
         self.cx = self.width / 2.0
@@ -73,46 +83,19 @@ class MasterShockDiamondsRenderer:
             by = float(rng.uniform(50, self.height - 50))
             self.bg_dots.append((bx, by, float(rng.uniform(0.1, 0.4))))
 
-    def _load_fonts(self):
-        def try_font(path, size, fallback=None):
-            if os.path.exists(path):
-                try:
-                    return ImageFont.truetype(path, size)
-                except Exception:
-                    pass
-            return fallback or ImageFont.load_default()
-
-        self.f_hero_hook = try_font("C:/Windows/Fonts/segoeuib.ttf", 29, try_font("C:/Windows/Fonts/arialbd.ttf", 29))
-        self.f_sub_hook = try_font("C:/Windows/Fonts/segoeui.ttf", 21, try_font("C:/Windows/Fonts/arial.ttf", 21))
-        self.f_brand_title = try_font("C:/Windows/Fonts/segoeuib.ttf", 20)
-        self.f_card_hdr = try_font("C:/Windows/Fonts/segoeuib.ttf", 15)
-        self.f_card_meta = try_font("C:/Windows/Fonts/consolab.ttf", 13)
-        self.f_hud_lbl = try_font("C:/Windows/Fonts/segoeuib.ttf", 12)
-        self.f_hud_val = try_font("C:/Windows/Fonts/consolab.ttf", 18)
-        self.f_badge_tag = try_font("C:/Windows/Fonts/consolab.ttf", 12)
-
     def _draw_background_environment(self, img_bgr: np.ndarray, t: float):
-        """Draws deep space aerospace gradient and subtle telemetry grid."""
-        y_indices = np.linspace(0, 1, self.height)
-        # Deep space dark slate: RGB(3, 7, 18) to (5, 14, 32)
-        b_col = (18 + 14 * y_indices).astype(np.uint8)
-        g_col = (7 + 7 * y_indices).astype(np.uint8)
-        r_col = (3 + 2 * y_indices).astype(np.uint8)
-
-        img_bgr[:, :, 0] = b_col[:, None]
-        img_bgr[:, :, 1] = g_col[:, None]
-        img_bgr[:, :, 2] = r_col[:, None]
+        """Draws deep space cinematic radial vignette and subtle engineering grid."""
+        draw_cinematic_background(img_bgr, theme=self.theme, center_y_ratio=0.45)
 
         # Subtle engineering grid lines
-        grid_alpha = 0.08
         for gx in range(60, self.width, 120):
-            cv2.line(img_bgr, (gx, 0), (gx, self.height), (40, 50, 60), 1, cv2.LINE_AA)
+            cv2.line(img_bgr, (gx, 0), (gx, self.height), (35, 32, 42), 1, cv2.LINE_AA)
         for gy in range(80, self.height, 120):
-            cv2.line(img_bgr, (0, gy), (self.width, gy), (40, 50, 60), 1, cv2.LINE_AA)
+            cv2.line(img_bgr, (0, gy), (self.width, gy), (35, 32, 42), 1, cv2.LINE_AA)
 
         # Starry dust
         for bx, by, a in self.bg_dots:
-            val = int(255 * a)
+            val = int(180 * a)
             cv2.circle(img_bgr, (int(bx), int(by)), 1, (val, val, val), -1)
 
     def _draw_rocket_nozzle(self, img_bgr: np.ndarray, st: Dict[str, Any]):
@@ -218,7 +201,6 @@ class MasterShockDiamondsRenderer:
         cv2.addWeighted(img_bgr, 1.0, glow_layer, 0.45, 0, dst=img_bgr)
 
         # 2. Draw Prandtl-Meyer Expansion Fans at Nozzle Lips
-        # Expanding rays from left and right nozzle lips
         for sign in [-1, 1]:
             lip_x = int(cx + sign * r_exit)
             lip_y = int(y_exit)
@@ -259,8 +241,7 @@ class MasterShockDiamondsRenderer:
             cv2.line(shock_layer, p_left, p_bot, col_shock, 2, cv2.LINE_AA)
             cv2.line(shock_layer, p_right, p_bot, col_shock, 2, cv2.LINE_AA)
 
-            # Central Mach Reflection: The Normal Shock Disk!
-            # Form a horizontal glowing incandescent disk at y_mid
+            # Central Mach Reflection: The Normal Shock Disk
             disk_r = int(st["mach_disk_radius"] * 250.0 * (1.0 - 0.25 * n))
             disk_r = max(8, min(disk_r, 48))
             y_disk = int(y_mid)
@@ -276,19 +257,49 @@ class MasterShockDiamondsRenderer:
             flare = cv2.GaussianBlur(flare, (35, 35), 0)
             cv2.add(shock_layer, flare, dst=shock_layer)
 
-            # Shock diamond annotation on first cell
+            # Publication-grade LaTeX Callout on first cell (Zero Raw Strings)
             if n == 0:
-                cv2.putText(
+                mach_lbl1 = r"$\mathbf{Disco\ de\ Mach}$" if self.lang == "ES" else r"$\mathbf{Mach\ Disk}$"
+                mach_lbl2 = r"$M < 1.0 \quad T > 2{,}850\ \mathrm{K}$"
+                callout_x = int(cx + disk_r + 24)
+                
+                # Dark frosted backplate for razor-sharp legibility over expansion rays
+                cv2.rectangle(
                     shock_layer,
-                    f"Mach Disk [M < 1.0, T > {int(st['T_mach_disk_core']):,} K]",
-                    (int(cx + disk_r + 25), y_disk + 5),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    0.48,
-                    (200, 240, 255),
+                    (callout_x - 8, y_disk - 30),
+                    (callout_x + 248, y_disk + 30),
+                    (12, 10, 16),
+                    -1
+                )
+                cv2.rectangle(
+                    shock_layer,
+                    (callout_x - 8, y_disk - 30),
+                    (callout_x + 248, y_disk + 30),
+                    (80, 70, 90),
                     1,
                     cv2.LINE_AA
                 )
-                cv2.line(shock_layer, (int(cx + disk_r + 5), y_disk), (int(cx + disk_r + 20), y_disk), (200, 240, 255), 1, cv2.LINE_AA)
+                
+                draw_latex(
+                    canvas_bgr=shock_layer,
+                    latex_str=mach_lbl1,
+                    x=callout_x + 6,
+                    y=y_disk - 15,
+                    fontsize=14,
+                    color="#FFD166",
+                    anchor="mid_left"
+                )
+                draw_latex(
+                    canvas_bgr=shock_layer,
+                    latex_str=mach_lbl2,
+                    x=callout_x + 6,
+                    y=y_disk + 11,
+                    fontsize=12,
+                    color="#FFFFFF",
+                    anchor="mid_left"
+                )
+                cv2.line(shock_layer, (int(cx + disk_r + 4), y_disk), (callout_x - 8, y_disk), (255, 230, 150), 2, cv2.LINE_AA)
+                cv2.circle(shock_layer, (int(cx + disk_r + 4), y_disk), 3, (255, 255, 255), -1)
 
         # Merge shock layer with bloom
         cv2.add(img_bgr, shock_layer, dst=img_bgr)
@@ -317,7 +328,7 @@ class MasterShockDiamondsRenderer:
             streak_len = self.p_spd[i] * 0.95
             y_tail = y - streak_len
 
-            # Particle color: hot white near axis, bright cyan in supersonic stream
+            # Particle color: hot white near axis, bright gold in supersonic stream
             dist_center = abs(self.p_eta[i])
             if dist_center < 0.25:
                 col = (255, 255, 255)
@@ -326,60 +337,86 @@ class MasterShockDiamondsRenderer:
             else:
                 col = (220, 150, 40)
 
-            alpha = self.p_alpha[i]
             # Draw streak
             cv2.line(img_bgr, (int(x), int(y_tail)), (int(x), int(y)), col, self.p_sz[i], cv2.LINE_AA)
 
-    def _draw_hud_cards(self, pil_draw: ImageDraw.ImageDraw, st: Dict[str, Any]):
-        """Renders dual glassmorphic cyber HUD telemetry cards."""
-        # Top branding header (Safe Zone Y: 140 - 220)
-        brand_text = "CONTINUUM LAB // FLUID DYNAMICS"
-        pil_draw.text((self.cx, 150), brand_text, fill=(0, 240, 255), font=self.f_brand_title, anchor="mt")
+    def _draw_hud_cards(self, frame_bgr: np.ndarray, st: Dict[str, Any]):
+        """Renders dual frosted glass telemetry cards with true LaTeX formatting."""
+        # Quantize dynamic values to guarantee consistent 100% _MATH_CACHE hits
+        p0_val = f"{st['p0']/1e6:.1f}"
+        t0_val = f"{int(round(st['T0']/50.0)*50):,}"
+        npr_val = f"{st['NPR']:.1f}"
+        me_val = f"{st['M_exit']:.2f}"
+        rp_val = f"{st['rp']:.2f}"
+        ld_val = f"{st['L_diamond']:.2f}"
+        beta_val = f"{st['beta_deg']:.1f}"
+        theta_val = f"{st['theta_deg']:.1f}"
+        t_core_val = f"{int(round(st['T_mach_disk_core']/50.0)*50):,}"
 
-        module_tag = "01 MECÁNICA DE FLUIDOS • ENTREGA #25: DIAMANTES DE CHOQUE & DISCO DE MACH" if self.lang == "ES" else "01 FLUID MECHANICS • ISSUE #25: SHOCK DIAMONDS & MACH DISKS"
-        pil_draw.text((self.cx, 185), module_tag, fill=(180, 200, 220), font=self.f_card_meta, anchor="mt")
+        # Card Left: Rocket Chamber & Flow Properties (X: 50 to 470, Y: 175 to 370)
+        title_l = "TELEMETRÍA DE CÁMARA" if self.lang == "ES" else "CHAMBER TELEMETRY"
+        metrics_l = [
+            (r"p_0", rf"{p0_val}\ \mathrm{{MPa}}"),
+            (r"T_0", rf"{t0_val}\ \mathrm{{K}}"),
+            (r"\mathrm{NPR}", rf"{npr_val}"),
+            (r"M_e", rf"{me_val}"),
+            (r"p_e / p_a", rf"{rp_val}\ \text{{(Subexp)}}" if self.lang == "ES" else rf"{rp_val}\ \text{{(Underexp)}}"),
+        ]
+        self.hud.draw_telemetry_card(
+            canvas_bgr=frame_bgr,
+            x=50,
+            y=175,
+            width=420,
+            height=195,
+            title=title_l,
+            metrics=metrics_l,
+            accent_color_hex="#FF9F1C"
+        )
 
-        # Telemetry Card Left: Rocket Chamber & Flow Properties (X: 50 to 450, Y: 230 to 350)
-        card_l_x1, card_l_y1, card_l_x2, card_l_y2 = 50, 225, 470, 350
-        pil_draw.rounded_rectangle([card_l_x1, card_l_y1, card_l_x2, card_l_y2], radius=12, fill=(11, 19, 43, 210), outline=(0, 240, 255), width=2)
-        pil_draw.text((card_l_x1 + 18, card_l_y1 + 12), "CHAMBER TELEMETRY" if self.lang == "EN" else "TELEMETRÍA DE CÁMARA", fill=(0, 240, 255), font=self.f_card_hdr)
-        pil_draw.text((card_l_x1 + 18, card_l_y1 + 38), f"p0: {st['p0']/1e6:.2f} MPa  |  T0: {int(st['T0']):,} K", fill=(255, 255, 255), font=self.f_card_meta)
-        pil_draw.text((card_l_x1 + 18, card_l_y1 + 64), f"NPR (p0/pa): {st['NPR']:.1f}  |  Exit Mach: {st['M_exit']:.2f}", fill=(200, 230, 255), font=self.f_hud_val)
-        pil_draw.text((card_l_x1 + 18, card_l_y1 + 96), f"pe / pa: {st['rp']:.2f} [Underexpanded Jet]", fill=(255, 200, 80), font=self.f_card_meta)
+        # Card Right: Shock Wave Dynamics & Mach Disk (X: 610 to 1030, Y: 175 to 370)
+        title_r = "DINÁMICA DE CHOQUE" if self.lang == "ES" else "SHOCK DYNAMICS"
+        metrics_r = [
+            (r"L_d", rf"{ld_val}\ \mathrm{{m}}"),
+            (r"\beta", rf"{beta_val}^\circ"),
+            (r"\theta", rf"{theta_val}^\circ"),
+            (r"T_\mathrm{{core}}", rf">{t_core_val}\ \mathrm{{K}}"),
+            (r"M_\mathrm{{post}}", r"< 1.0\ \text{(Subsónico)}" if self.lang == "ES" else r"< 1.0\ \text{(Subsonic)}"),
+        ]
+        self.hud.draw_telemetry_card(
+            canvas_bgr=frame_bgr,
+            x=610,
+            y=175,
+            width=420,
+            height=195,
+            title=title_r,
+            metrics=metrics_r,
+            accent_color_hex="#FFD166"
+        )
 
-        # Telemetry Card Right: Shock Wave Dynamics & Mach Disk (X: 610 to 1030, Y: 230 to 350)
-        card_r_x1, card_r_y1, card_r_x2, card_r_y2 = 610, 225, 1030, 350
-        pil_draw.rounded_rectangle([card_r_x1, card_r_y1, card_r_x2, card_r_y2], radius=12, fill=(11, 19, 43, 210), outline=(255, 180, 0), width=2)
-        pil_draw.text((card_r_x1 + 18, card_r_y1 + 12), "SHOCK DYNAMICS" if self.lang == "EN" else "DINÁMICA DE CHOQUE", fill=(255, 200, 0), font=self.f_card_hdr)
-        pil_draw.text((card_r_x1 + 18, card_r_y1 + 38), f"Diamond Spacing L_d: {st['L_diamond']:.2f} m", fill=(255, 255, 255), font=self.f_card_meta)
-        pil_draw.text((card_r_x1 + 18, card_r_y1 + 64), f"Shock Angle beta: {st['beta_deg']:.1f}° | Defl: {st['theta_deg']:.1f}°", fill=(255, 220, 150), font=self.f_hud_val)
-        pil_draw.text((card_r_x1 + 18, card_r_y1 + 96), f"Mach Disk Core T: {int(st['T_mach_disk_core']):,} K [Plasma Flash]", fill=(255, 80, 80), font=self.f_card_meta)
-
-    def _draw_subtitles_and_hooks(self, pil_draw: ImageDraw.ImageDraw, t: float):
+    def _draw_subtitles_and_hooks(self, frame_bgr: np.ndarray, t: float):
         """Draws kinetic subtitles and viral hook in the mobile safe zone."""
-        # Top Hook (Y: 70 - 130)
+        # Top Hook (Y: 70 - 150)
         if self.lang == "ES":
-            hook_line1 = "¿POR QUÉ EL ESCAPE DE UN COHETE"
-            hook_line2 = "FORMA DIAMANTES DE FUEGO INCANDESCENTES?"
+            hook1 = "¿POR QUÉ EL ESCAPE DE UN COHETE"
+            hook2 = "FORMA DIAMANTES DE FUEGO INCANDESCENTES?"
         else:
-            hook_line1 = "WHY ROCKET EXHAUSTS FORM"
-            hook_line2 = "GLOWING INCANDESCENT SHOCK DIAMONDS"
+            hook1 = "WHY ROCKET EXHAUSTS FORM"
+            hook2 = "GLOWING INCANDESCENT SHOCK DIAMONDS"
 
-        pil_draw.text((self.cx, 75), hook_line1, fill=(255, 255, 255), font=self.f_hero_hook, anchor="mt")
-        pil_draw.text((self.cx, 112), hook_line2, fill=(0, 240, 255), font=self.f_hero_hook, anchor="mt")
+        self.hud.draw_hero_hook(frame_bgr, hook1, hook2, accent_color_hex="#FF9F1C", top_y=75)
 
-        # Lower Educational Explanations (Y: 1480 - 1720, Safe from TikTok/Reels UI)
+        # Lower Educational Explanations (Y: 1510 - 1690, Safe from TikTok/Reels UI)
         if t < 4.0:
             if self.lang == "ES":
                 sub1 = "La tobera de Laval expande el gas de combustión a régimen supersónico (Mach > 2.4)."
-                sub2 = "Al salir al aire libre, la presión del chorro supera con creces la presión atmosférica (pe > pa)."
+                sub2 = "Al salir al aire libre, la presión del chorro supera con creces la presión atmosférica."
             else:
                 sub1 = "The de Laval nozzle accelerates combustion gas to supersonic speeds (Mach > 2.4)."
-                sub2 = "At the exit, the jet core pressure drastically exceeds atmospheric pressure (pe > pa)."
+                sub2 = "At the exit, the jet core pressure drastically exceeds atmospheric pressure."
         elif t < 8.5:
             if self.lang == "ES":
                 sub1 = "El chorro subexpandido genera abanicos de expansión de Prandtl-Meyer en el labio."
-                sub2 = "La frontera a presión constante refleja las ondas como ondas de choque oblicuas convergentes."
+                sub2 = "La frontera a presión constante refleja las ondas como choques oblicuos convergentes."
             else:
                 sub1 = "The underexpanded jet triggers Prandtl-Meyer expansion fans at the nozzle lip."
                 sub2 = "The constant-pressure boundary reflects these waves as converging oblique shocks."
@@ -398,14 +435,11 @@ class MasterShockDiamondsRenderer:
                 sub1 = "The flow periodically re-expands forming a diamond chain before viscous mixing decay."
                 sub2 = "An iconic aerospace spectacle governed 100% by compressible Navier-Stokes & Euler!"
 
-        # Subtitle glass card (Y: 1540 to 1690)
-        box_y1, box_y2 = 1530, 1690
-        pil_draw.rounded_rectangle([70, box_y1, self.width - 70, box_y2], radius=14, fill=(11, 19, 43, 220), outline=(0, 240, 255), width=2)
-        pil_draw.text((self.cx, box_y1 + 25), sub1, fill=(255, 255, 255), font=self.f_sub_hook, anchor="mt")
-        pil_draw.text((self.cx, box_y1 + 80), sub2, fill=(255, 215, 0), font=self.f_sub_hook, anchor="mt")
+        self.hud.draw_subtitle_card(frame_bgr, sub1, sub2, accent_color_hex="#FF9F1C", box_y1=1520, box_y2=1680)
 
-        # Bottom Safe Zone watermark (Y: 1730 - 1760)
-        pil_draw.text((self.cx, 1740), "CONTINUUM LAB • @continuumlab_ • OPEN SCIENCE", fill=(120, 140, 165), font=self.f_card_meta, anchor="mt")
+        # Subtle bottom watermark in safe zone (Y: 1730 - 1760)
+        wm_tex = r"$\mathrm{CONTINUUM\ LAB} \ \cdot \ \text{CIENCIA ABIERTA}$" if self.lang == "ES" else r"$\mathrm{CONTINUUM\ LAB} \ \cdot \ \text{OPEN SCIENCE}$"
+        draw_latex(frame_bgr, wm_tex, int(self.cx), 1735, fontsize=12, color="#8C9BAE", anchor="mid_center")
 
     def render_frame(self, t: float) -> np.ndarray:
         """Renders a single master 1080x1920 frame at time t."""
@@ -424,16 +458,11 @@ class MasterShockDiamondsRenderer:
         # 4. Rocket Nozzle Hardware
         self._draw_rocket_nozzle(frame_bgr, st)
 
-        # 5. PIL Overlay for HUD and Typography
-        img_rgb = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB)
-        pil_img = Image.fromarray(img_rgb)
-        pil_draw = ImageDraw.Draw(pil_img, "RGBA")
+        # 5. Master HUD Telemetry & Kinetic Subtitles
+        self._draw_hud_cards(frame_bgr, st)
+        self._draw_subtitles_and_hooks(frame_bgr, t)
 
-        self._draw_hud_cards(pil_draw, st)
-        self._draw_subtitles_and_hooks(pil_draw, t)
-
-        final_rgb = np.array(pil_img)
-        return cv2.cvtColor(final_rgb, cv2.COLOR_RGB2BGR)
+        return frame_bgr
 
 
 def render_shock_diamonds_video(
