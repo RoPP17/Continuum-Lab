@@ -132,6 +132,10 @@ Continuum Lab/
 - **Physics:** Rayleigh-Plesset & Keller-Miksis non-linear acoustic radiation ODE, adiabatic van der Waals core compression ($V_0/V_{min} \approx 8,000$), thermal Bremsstrahlung plasma flash ($T > 18,500\text{ K}$, $P > 65,000\text{ atm}$), Kirkwood-Bethe spherical shockwaves ($>16,000\text{ bar}$), and asymmetric supersonic liquid micro-jet ($v_{jet} = 1,050\text{ m/s}$).
 - **Features:** 3D perspective bubble mesh with Fresnel rim shading and van der Waals core, blinding anamorphic lens flare and plasma bloom, supersonic refractive shock rings, 800+ convergent tracer particles, dual glassmorphic telemetry cards, and multi-layer procedural sub-bass + picosecond crystal ping audio @ 60 FPS.
 
+### 17. [Fluid Dynamics & Supersonic Aerodynamics: Shock Diamonds & Mach Disks](01%20Mecanica%20de%20Fluidos/09%20Diamantes%20de%20Choque%20y%20Discos%20de%20Mach)
+- **Physics:** Compressible 2D Euler equations, isentropic de Laval nozzle expansion ($M_e = 2.45$), Prandtl-Meyer expansion angle $\nu(M)$, constant-pressure boundary reflection, oblique shock $\theta$-$\beta$-$M$ relations, and von Neumann Mach reflection forming central normal shock **Mach Disks** ($T > 2,850\text{ K}$, $P_{core} > 25\text{ bar}$).
+- **Features:** Detailed de Laval rocket nozzle bell with brushed titanium texture and glowing throat, 2D Schlieren refractive density gradients, periodic Prandtl-Pack diamond cell spacing ($L_d \approx 1.306 d_e \sqrt{M_e^2 - 1}$), 900+ Lagrangian supersonic velocity streak tracers, dual cybernetic telemetry HUD cards, and 16.0s seamless infinite loop breathing audio @ 60 FPS.
+
 ---
 
 ## 🎨 Visual Standard: Cybernetic HUD & Zero Text Overlap

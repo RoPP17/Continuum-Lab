@@ -17,6 +17,7 @@ TEST_SUITES = [
     PROJECT_ROOT / "01 Mecanica de Fluidos" / "06 Inestabilidad Rayleigh Taylor" / "tests",
     PROJECT_ROOT / "01 Mecanica de Fluidos" / "07 Colision de Anillos de Vortice" / "tests",
     PROJECT_ROOT / "01 Mecanica de Fluidos" / "08 Colapso de Cavitacion y Sonoluminiscencia" / "tests",
+    PROJECT_ROOT / "01 Mecanica de Fluidos" / "09 Diamantes de Choque y Discos de Mach" / "tests",
     PROJECT_ROOT / "02 Dinamica y Vibraciones" / "01 Pendulo Triple Caotico" / "tests",
     PROJECT_ROOT / "02 Dinamica y Vibraciones" / "02 Mecanismo Coriolis Collarin" / "tests",
     PROJECT_ROOT / "02 Dinamica y Vibraciones" / "03 Enjambre Doble Pendulo Caotico" / "tests",
